@@ -1,36 +1,52 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# web-and-store
 
-## Getting Started
+Evol's landing page and web store built with Next.js 16, React 19, and Tailwind CSS 4.
 
-First, run the development server:
+## Tech Stack
+
+- **Framework**: Next.js 16
+- **UI**: React 19, Tailwind CSS 4, shadcn/ui, Base UI
+- **Language**: TypeScript 5
+- **Styling**: Tailwind CSS with tw-animate-css
+- **Animations**: Embla Carousel, Radix UI, Vaul
+- **Charts**: Recharts
+- **Linting**: Biome
+
+## Scripts
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm dev       # Start dev server
+pnpm build     # Build for production
+pnpm start     # Start production server
+pnpm check     # Run Biome linter
+pnpm format    # Auto-format with Biome
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Structure
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- `app/` - Next.js App Router pages and layouts
+- `components/` - Reusable UI components
+- `hooks/` - Custom React hooks
+- `lib/` - Utility functions (e.g., `cn` helper)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Setup
 
-## Learn More
+The setup is straightforward as with any other next.js app.
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+# Clone the repo first
+git clone <repo-url>
+cd web-and-store
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+pnpm install
+pnpm dev
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Notes
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Use pnpm for package management (installs, builds)
+- Keep code simple with proper type definitions and a production-first mindset
+- Keep structure modular; limit file sizes, reuse utils/helpers
+- Use shadcn/ui components; do not recreate unless required
+- Run `pnpm check` before committing to catch lint issues
+- Run `pnpm format` to auto-format code
