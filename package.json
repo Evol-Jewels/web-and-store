@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "check": "biome check .",
+    "format": "biome check --write .",
+    "format:unsafe": "biome check --write --unsafe ."
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",
@@ -33,12 +35,11 @@
     "vaul": "^1.1.2"
   },
   "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "eslint": "^9",
-    "eslint-config-next": "16.2.4",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
