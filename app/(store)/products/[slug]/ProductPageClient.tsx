@@ -11,10 +11,9 @@ import {
   Check,
   Info,
 } from "lucide-react";
-import { useEffect } from "react";
-import { ImageGallery } from "@/components/store/pdp/ImageGallery";
-import { ExpertConsultation } from "@/components/store/pdp/ExpertConsultation";
-import { RingSizeGuide } from "@/components/store/pdp/RingSizeGuide";
+import { ImageGallery } from "@/components/store/product-details/ImageGallery";
+import { ExpertConsultation } from "@/components/store/product-details/ExpertConsultation";
+import { RingSizeGuide } from "@/components/store/product-details/RingSizeGuide";
 import { CartDrawer } from "@/components/store/CartDrawer";
 import { useWishlistStore } from "@/lib/stores/wishlistStore";
 import { useCartStore } from "@/lib/stores/cartStore";
@@ -22,41 +21,17 @@ import {
   getConfiguratorSections,
   METAL_COLORS,
   PURITY_OPTIONS,
-} from "@/lib/configurators";
-
-interface ShopifyProduct {
-  id: string;
-  title: string;
-  handle: string;
-  vendor?: string;
-  productType?: string;
-  images: Array<{
-    url: string;
-    alt?: string;
-  }>;
-  variants: Array<{
-    id: string;
-    price: string;
-    title: string;
-    selectedOptions?: Array<{
-      name: string;
-      value: string;
-    }>;
-  }>;
-  tags?: string[];
-  description?: string;
-}
+} from "@/lib/utils/configurators";
+import type { ShopifyProduct, AddToCartStatus } from "@/lib/types";
 
 interface ProductPageClientProps {
   shopifyProduct: ShopifyProduct;
 }
 
-type AddToCartStatus = "idle" | "loading" | "success" | "added";
-
 // Find matching variant based on selected options
 const findMatchingVariant = (
   variants: ShopifyProduct["variants"],
-  selectedOptions: Record<string, any>
+  selectedOptions: Record<string, any>,
 ) => {
   return variants.find((variant) => {
     if (!variant.selectedOptions) return false;
@@ -66,7 +41,7 @@ const findMatchingVariant = (
       variant.selectedOptions.map((opt) => [
         opt.name.toLowerCase(),
         opt.value.toLowerCase(),
-      ])
+      ]),
     );
 
     // Check each selected option against variant
@@ -80,8 +55,10 @@ const findMatchingVariant = (
       const selectedValueStr = String(value).toLowerCase().trim();
 
       // Check if variant value matches
-      if (!variantValue.includes(selectedValueStr) &&
-          variantValue !== selectedValueStr) {
+      if (
+        !variantValue.includes(selectedValueStr) &&
+        variantValue !== selectedValueStr
+      ) {
         return false;
       }
     }
@@ -95,22 +72,25 @@ export function ProductPageClient({ shopifyProduct }: ProductPageClientProps) {
   const { add: addToCart, setOpen: setCartOpen } = useCartStore();
   const [cartStatus, setCartStatus] = useState<AddToCartStatus>("idle");
   const [showSizeGuide, setShowSizeGuide] = useState(false);
-  const [showCustomizationRequest, setShowCustomizationRequest] = useState(false);
+  const [showCustomizationRequest, setShowCustomizationRequest] =
+    useState(false);
 
   // Get configurator sections for this product category
   const configuratorSections = useMemo(
     () => getConfiguratorSections(shopifyProduct.productType || ""),
-    [shopifyProduct.productType]
+    [shopifyProduct.productType],
   );
 
   // Dynamic configurator state - map section ID to selected value
-  const [selectedOptions, setSelectedOptions] = useState<Record<string, any>>(() => {
-    const initial: Record<string, any> = {};
-    configuratorSections.forEach((section) => {
-      initial[section.id] = section.defaultValue || section.options[0]?.value;
-    });
-    return initial;
-  });
+  const [selectedOptions, setSelectedOptions] = useState<Record<string, any>>(
+    () => {
+      const initial: Record<string, any> = {};
+      configuratorSections.forEach((section) => {
+        initial[section.id] = section.defaultValue || section.options[0]?.value;
+      });
+      return initial;
+    },
+  );
 
   const isFavorite = isInWishlist(shopifyProduct.id);
   const basePrice = parseInt(shopifyProduct.variants[0]?.price || "0");
@@ -128,67 +108,13 @@ export function ProductPageClient({ shopifyProduct }: ProductPageClientProps) {
       }
     });
 
-    return Math.max(0, price); // Ensure price doesn't go negative
+    return Math.max(0, price);
   }, [basePrice, selectedOptions, configuratorSections]);
-
-  // Log Comprehensive Product Details On Page Load
-  useEffect(() => {
-    console.log("\n========== PDP PRODUCT DETAILS ==========");
-
-    // Product Metadata
-    console.log("Product ID:", shopifyProduct.id);
-    console.log("Product Title:", shopifyProduct.title);
-    console.log("Product Handle:", shopifyProduct.handle);
-    console.log("Product Type:", shopifyProduct.productType || "Not specified");
-    console.log("Vendor:", shopifyProduct.vendor || "Not specified");
-    if (shopifyProduct.description) {
-      console.log("Description:", shopifyProduct.description.substring(0, 150) + "...");
-    }
-
-    // Tags
-    console.log("\n--- TAGS ---");
-    console.log("Total Tags:", shopifyProduct.tags?.length || 0);
-    if (shopifyProduct.tags && shopifyProduct.tags.length > 0) {
-      shopifyProduct.tags.forEach((tag, idx) => {
-        console.log(`  [${idx}] ${tag}`);
-      });
-    } else {
-      console.log("  (No tags)");
-    }
-
-    // Images
-    console.log("\n--- IMAGES ---");
-    console.log("Total Images:", shopifyProduct.images.length);
-    shopifyProduct.images.forEach((img, idx) => {
-      console.log(`  [${idx}] ${img.url}`);
-      if (img.alt) console.log(`      Alt: ${img.alt}`);
-    });
-
-    // Variants with Selected Options
-    console.log("\n--- VARIANTS ---");
-    console.log("Total Variants:", shopifyProduct.variants.length);
-    shopifyProduct.variants.forEach((variant, idx) => {
-      console.log(`\n  [${idx}] ${variant.title}`);
-      console.log(`      ID: ${variant.id}`);
-      console.log(`      Price: ${variant.price}`);
-
-      if (variant.selectedOptions && variant.selectedOptions.length > 0) {
-        console.log(`      Selected Options:`);
-        variant.selectedOptions.forEach((opt) => {
-          console.log(`        - ${opt.name}: ${opt.value}`);
-        });
-      } else {
-        console.log(`      (No selected options)`);
-      }
-    });
-
-    console.log("\n========== END PRODUCT DETAILS ==========\n");
-  }, [shopifyProduct]);
 
   // Check if current variant combination is available
   const matchingVariant = useMemo(
     () => findMatchingVariant(shopifyProduct.variants, selectedOptions),
-    [selectedOptions, shopifyProduct.variants]
+    [selectedOptions, shopifyProduct.variants],
   );
 
   const isVariantAvailable = !!matchingVariant;
@@ -207,7 +133,9 @@ export function ProductPageClient({ shopifyProduct }: ProductPageClientProps) {
 
     // Get metal label for cart
     const metalSection = configuratorSections.find((s) => s.id === "metal");
-    const metalOption = metalSection?.options.find((opt) => opt.value === selectedOptions.metal);
+    const metalOption = metalSection?.options.find(
+      (opt) => opt.value === selectedOptions.metal,
+    );
     const metalLabel = metalOption?.label || "Metal";
 
     addToCart({
@@ -305,7 +233,8 @@ export function ProductPageClient({ shopifyProduct }: ProductPageClientProps) {
                             >
                               <motion.div
                                 animate={{
-                                  scale: selectedValue === option.value ? 1.1 : 1,
+                                  scale:
+                                    selectedValue === option.value ? 1.1 : 1,
                                 }}
                                 className={`w-9 h-9 rounded-full border-2 transition-all ${
                                   selectedValue === option.value
@@ -461,14 +390,15 @@ export function ProductPageClient({ shopifyProduct }: ProductPageClientProps) {
                 <motion.button
                   onClick={handleAddToCart}
                   disabled={cartStatus !== "idle"}
-                  whileHover={{ backgroundColor: isVariantAvailable ? "#7A0208" : "#666666" }}
+                  whileHover={{
+                    backgroundColor: isVariantAvailable ? "#7A0208" : "#666666",
+                  }}
                   className={`w-full h-13 text-white font-serif text-base rounded flex items-center justify-center transition-colors disabled:opacity-75 ${
                     isVariantAvailable ? "bg-evolRed" : "bg-gray-600"
                   }`}
                 >
-                  {cartStatus === "idle" && (
-                    isVariantAvailable ? "Place Order" : "Place Request"
-                  )}
+                  {cartStatus === "idle" &&
+                    (isVariantAvailable ? "Place Order" : "Place Request")}
                   {cartStatus === "loading" && (
                     <Loader2 className="w-5 h-5 animate-spin" />
                   )}

@@ -3,53 +3,17 @@
 import { useState, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { useFilterStore } from "@/lib/stores/filterStore";
-import { extractFilterOptions } from "@/lib/filterOptionExtractor";
-import { CollectionHeroBanner } from "@/components/store/plp/CollectionHeroBanner";
-import { FilterBar } from "@/components/store/plp/FilterBar";
-import { SearchBar } from "@/components/store/plp/SearchBar";
-import { SortBar } from "@/components/store/plp/SortBar";
-import { ShopifyProductGrid } from "@/components/store/plp/ShopifyProductGrid";
-import { EmptyState } from "@/components/store/plp/EmptyState";
-import { Pagination } from "@/components/store/plp/Pagination";
-
-interface ShopifyProduct {
-  id: string;
-  title: string;
-  handle: string;
-  vendor?: string;
-  productType?: string;
-  images: Array<{
-    url: string;
-    alt?: string;
-  }>;
-  variants: Array<{
-    id: string;
-    price: string;
-    title: string;
-  }>;
-  tags?: string[];
-  description?: string;
-  __subCollectionHandle?: string;
-}
-
-interface CollectionData {
-  title: string;
-  descriptor: string;
-  breadcrumb: string;
-}
-
-interface SubCollection {
-  id: string;
-  title: string;
-  handle: string;
-}
-
-interface CollectionPageClientProps {
-  slug: string;
-  products: ShopifyProduct[];
-  collectionData: CollectionData;
-  subCollections?: SubCollection[];
-}
+import { extractFilterOptions } from "@/lib/utils/filterOptionExtractor";
+import { filterProductsByType } from "@/lib/utils/collectionFilters";
+import { METAL_COLORS } from "@/lib/types";
+import { CollectionHeroBanner } from "@/components/store/product-listing/CollectionHeroBanner";
+import { FilterBar } from "@/components/store/product-listing/FilterBar";
+import { SearchBar } from "@/components/store/product-listing/SearchBar";
+import { SortBar } from "@/components/store/product-listing/SortBar";
+import { ShopifyProductGrid } from "@/components/store/product-listing/ShopifyProductGrid";
+import { EmptyState } from "@/components/store/product-listing/EmptyState";
+import { Pagination } from "@/components/store/product-listing/Pagination";
+import type { ShopifyProduct, CollectionPageClientProps } from "@/lib/types";
 
 const ITEMS_PER_PAGE = 12;
 
@@ -64,14 +28,16 @@ export function CollectionPageClient({
   const { filters } = useFilterStore();
   const searchParams = useSearchParams();
 
-  // Extract dynamic filter options from products
   const filterOptions = useMemo(() => {
-    return extractFilterOptions(products, slug);
+    const collectionProducts = filterProductsByType(products, slug);
+    return extractFilterOptions(collectionProducts, slug);
   }, [products, slug]);
 
-  // Filter products based on search, sub-collections, shape, price, and occasion
   const filteredProducts = useMemo(() => {
-    let filtered = [...products];
+    const uniqueProducts = Array.from(
+      new Map(products.map((p) => [p.id, p])).values()
+    );
+    let filtered = filterProductsByType([...uniqueProducts], slug);
 
     // Filter by search query (if any)
     if (searchQuery.trim()) {
@@ -85,13 +51,19 @@ export function CollectionPageClient({
 
     // Filter by sub-collection (if any are selected)
     if (filters.categories.length > 0) {
+      // User selected specific sub-categories - show only those
       filtered = filtered.filter((p) =>
         filters.categories.includes(p.__subCollectionHandle || ""),
       );
     } else {
-      // If no category is selected, only show primary collection products
-      // Primary collection products don't have __subCollectionHandle set
-      filtered = filtered.filter((p) => !p.__subCollectionHandle);
+      // If no category is selected, prefer showing primary collection products
+      // Primary products don't have __subCollectionHandle set
+      const hasPrimaryProducts = filtered.some((p) => !p.__subCollectionHandle);
+      if (hasPrimaryProducts) {
+        // Show only primary collection products
+        filtered = filtered.filter((p) => !p.__subCollectionHandle);
+      }
+      // If no primary products exist, show all sub-collection products
     }
 
     // Filter by shape (if any shapes are selected)
@@ -100,7 +72,7 @@ export function CollectionPageClient({
         const tags = p.tags || [];
         return filters.shape.some((shape) => {
           // Match tags like "stone_shape_Round", "stone_shape_Oval", etc.
-          return tags.some((tag) =>
+          return tags.some((tag: string) =>
             tag.toLowerCase().includes(`stone_shape_${shape.toLowerCase()}`),
           );
         });
@@ -130,7 +102,7 @@ export function CollectionPageClient({
         return filters.occasion.some((occ) => {
           const occLower = occ.toLowerCase();
           // Match tags like "Ocassion_Engagement", "Ocassion_Wedding", etc. (note: Shopify uses "Ocassion" spelling)
-          return tags.some((tag) => {
+          return tags.some((tag: string) => {
             const tagLower = tag.toLowerCase();
             // Check for Ocassion_* tags (Shopify's spelling)
             if (tagLower.startsWith("ocassion_")) {
@@ -158,7 +130,7 @@ export function CollectionPageClient({
         const tags = p.tags || [];
         return filters.forWhom.some((whom) => {
           const whomLower = whom.toLowerCase();
-          return tags.some((tag) => {
+          return tags.some((tag: string) => {
             const tagLower = tag.toLowerCase();
             // Match Gender_* tags and direct for_* tags
             if (tagLower.startsWith("gender_")) {
@@ -185,33 +157,81 @@ export function CollectionPageClient({
       });
     }
 
-    // Filter by size (if any are selected)
     if (filters.size.length > 0) {
+      const selectedSizes = filters.size;
+      const slugLower = slug.toLowerCase();
+      const isBracelet = slugLower.includes("bracelet");
+
       filtered = filtered.filter((p) => {
         const tags = p.tags || [];
-        const sizeLower = filters.size.map((s) => s.toLowerCase());
+        const variants = p.variants || [];
 
-        return tags.some((tag) => {
+        const tagMatch = tags.some((tag: string) => {
           const tagLower = tag.toLowerCase();
+          if (!tagLower.includes("size")) return false;
 
-          // Match Size_* tags
-          if (tagLower.includes("size_")) {
-            const match = tagLower.match(/size_(.+)/);
-            if (match) {
-              const sizeValue = match[1];
-              // Check if this size value matches any selected size
-              return sizeLower.some((selectedSize) => {
-                const selectedLower = selectedSize.toLowerCase();
-                return (
-                  sizeValue.includes(selectedLower) ||
-                  sizeValue === selectedLower
-                );
-              });
+          const match = tagLower.match(/(?:ring_)?size_(.+)/);
+          if (!match) return false;
+
+          const sizeValue = match[1];
+          return selectedSizes.some((selectedSize) =>
+            sizeValue.toLowerCase().includes(selectedSize.toLowerCase()) ||
+            sizeValue.toLowerCase() === selectedSize.toLowerCase()
+          );
+        });
+
+        if (tagMatch) return true;
+
+        const variantMatch = variants.some((variant) => {
+          if (!variant.title) return false;
+
+          const title = variant.title;
+          const titleLower = title.toLowerCase();
+
+          if (slugLower === "rings" || slugLower === "ring") {
+            const ringPatterns = [
+              /\/\s*(\d+)\s*$/,
+              /\/\s*(\d+)\s*,/,
+              /(?:ring\s+)?size[:\s-]*(\d+)/i,
+              /\b(\d+)\s*(?:us\s+)?(?:ring|size)\b/i,
+            ];
+
+            for (const pattern of ringPatterns) {
+              const match = titleLower.match(pattern);
+              if (match) {
+                const sizeValue = match[1];
+                if (selectedSizes.includes(sizeValue)) {
+                  return true;
+                }
+              }
             }
+            return false;
+          }
+
+          if (isBracelet) {
+            const parts = title.split("/");
+            if (parts.length < 2) return false;
+
+            let extractedSize = parts[parts.length - 1]?.trim();
+            if (!extractedSize) return false;
+
+            if (METAL_COLORS.some(color => extractedSize.toLowerCase().includes(color))) {
+              return false;
+            }
+
+            const numMatch = extractedSize.match(/^(\d+)(?:\.\d+)?/);
+            if (numMatch && !extractedSize.includes("anna")) {
+              extractedSize = extractedSize.includes('.') ? extractedSize.split(/\s/)[0] : `${numMatch[1]}.0`;
+            }
+
+            const matched = selectedSizes.some(s => s.toLowerCase() === extractedSize.toLowerCase());
+            return matched;
           }
 
           return false;
         });
+
+        return variantMatch;
       });
     }
 
@@ -220,7 +240,7 @@ export function CollectionPageClient({
       filtered = filtered.filter((p) => {
         const tags = p.tags || [];
         // Match tags like "Gross_Total_Weight_Range_1g-3g", "Gross_Total_Weight_Range_10g & more"
-        return tags.some((tag) => {
+        return tags.some((tag: string) => {
           const tagLower = tag.toLowerCase();
           if (tagLower.startsWith("gross_total_weight_range_")) {
             const weightValue = tag.substring(25); // Remove "Gross_Total_Weight_Range_" prefix
@@ -239,7 +259,7 @@ export function CollectionPageClient({
     }
 
     return filtered;
-  }, [filters, products, searchQuery]);
+  }, [filters, products, searchQuery, subCollections]);
 
   // Sort products based on selected sort option
   const sortedProducts = useMemo(() => {
@@ -249,11 +269,11 @@ export function CollectionPageClient({
       case "featured":
         // Show products with "bestseller" or "tag_bestseller" tag first
         sorted.sort((a, b) => {
-          const aHasBestseller = (a.tags || []).some((tag) => {
+          const aHasBestseller = (a.tags || []).some((tag: string) => {
             const tagLower = tag.toLowerCase();
             return tagLower.includes("bestseller");
           });
-          const bHasBestseller = (b.tags || []).some((tag) => {
+          const bHasBestseller = (b.tags || []).some((tag: string) => {
             const tagLower = tag.toLowerCase();
             return tagLower.includes("bestseller");
           });

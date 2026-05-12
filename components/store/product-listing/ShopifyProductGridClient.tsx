@@ -2,36 +2,17 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { motion } from "framer-motion";
-import { useInView } from "framer-motion";
+import { motion, useInView } from "framer-motion";
 import { useRef, useState } from "react";
 import { Heart } from "lucide-react";
 import { useWishlistStore } from "@/lib/stores/wishlistStore";
+import type { ShopifyProduct } from "@/lib/types";
 
-interface ShopifyProduct {
-  id: string;
-  title: string;
-  handle: string;
-  vendor?: string;
-  productType?: string;
-  images: Array<{
-    url: string;
-    alt?: string;
-  }>;
-  variants: Array<{
-    id: string;
-    price: string;
-    title: string;
-  }>;
-  tags?: string[];
-  description?: string;
-}
-
-interface ShopifyProductGridProps {
+interface ShopifyProductGridClientProps {
   products: ShopifyProduct[];
 }
 
-function ShopifyProductCard({
+function ShopifyProductCardRelated({
   product,
   index,
 }: {
@@ -63,9 +44,9 @@ function ShopifyProductCard({
     >
       <Link href={`/products/${product.handle}`}>
         <div className="h-full flex flex-col cursor-pointer">
-          {/* Image container - 70% of card height */}
+          {/* Image container */}
           <div
-            className="relative aspect-4/5 overflow-hidden bg-evol-light-grey group"
+            className="relative aspect-[4/5] overflow-hidden bg-evol-light-grey group"
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
           >
@@ -95,33 +76,13 @@ function ShopifyProductCard({
               }}
             />
 
-            {/* Wishlist button */}
+            {/* Wishlist button - visible on mobile, on hover for desktop */}
             <button
               onClick={(e) => {
                 e.preventDefault();
                 toggle(product.id);
               }}
-              className="absolute top-3 right-3 p-2 rounded-full bg-white hover:bg-gray-100 transition-colors opacity-0 md:group-hover:opacity-100 md:opacity-0 opacity-100 sm:opacity-0"
-              aria-label={
-                isFavorite ? "Remove from wishlist" : "Add to wishlist"
-              }
-            >
-              <Heart
-                className={`w-5 h-5 transition-colors ${
-                  isFavorite
-                    ? "fill-evolRed text-evolRed"
-                    : "text-evol-dark-grey"
-                }`}
-              />
-            </button>
-
-            {/* Wishlist mobile always visible */}
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                toggle(product.id);
-              }}
-              className="absolute top-3 right-3 p-2 rounded-full bg-white hover:bg-gray-100 transition-colors md:hidden"
+              className="absolute top-3 right-3 p-2 rounded-full bg-white hover:bg-gray-100 transition-colors opacity-100 md:opacity-0 md:group-hover:opacity-100"
               aria-label={
                 isFavorite ? "Remove from wishlist" : "Add to wishlist"
               }
@@ -136,7 +97,7 @@ function ShopifyProductCard({
             </button>
           </div>
 
-          {/* Product info - 30% of card height */}
+          {/* Product info */}
           <div className="flex-1 flex flex-col justify-start pt-3 md:pt-4 px-1">
             {/* Product name */}
             <h3 className="font-serif text-base md:text-lg text-gray-900 line-clamp-2">
@@ -154,16 +115,45 @@ function ShopifyProductCard({
   );
 }
 
-export function ShopifyProductGrid({ products }: ShopifyProductGridProps) {
+export function ShopifyProductGridClient({
+  products,
+}: ShopifyProductGridClientProps) {
   if (products.length === 0) {
     return null;
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-7">
-      {products.map((product, index) => (
-        <ShopifyProductCard key={product.id} product={product} index={index} />
-      ))}
-    </div>
+    <>
+      {/* Desktop: 4-column grid */}
+      <div className="hidden md:grid grid-cols-4 gap-6">
+        {products.map((product, index) => (
+          <ShopifyProductCardRelated
+            key={product.id}
+            product={product}
+            index={index}
+          />
+        ))}
+      </div>
+
+      {/* Tablet: 2-column grid */}
+      <div className="hidden sm:grid md:hidden grid-cols-2 gap-4">
+        {products.map((product, index) => (
+          <ShopifyProductCardRelated
+            key={product.id}
+            product={product}
+            index={index}
+          />
+        ))}
+      </div>
+
+      {/* Mobile: 1-column grid */}
+      <div className="sm:hidden">
+        {products.map((product, index) => (
+          <div key={product.id} className="mb-6">
+            <ShopifyProductCardRelated product={product} index={index} />
+          </div>
+        ))}
+      </div>
+    </>
   );
 }

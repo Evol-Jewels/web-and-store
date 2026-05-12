@@ -1,5 +1,4 @@
-// Mapping of Shopify collections to major jewelry categories
-export type MajorCollectionType = "Rings" | "Earrings" | "Necklaces" | "Pendants" | "Bracelets";
+import type { MajorCollectionType } from "../types";
 
 export interface MajorCollection {
   id: string;
@@ -15,7 +14,10 @@ const COLLECTION_KEYWORDS_ORDERED: Array<[MajorCollectionType, RegExp]> = [
   ["Necklaces", /necklace/i],
   ["Pendants", /pendant|drop.?pendant/i],
   ["Bracelets", /bracelet|bangle|tennis/i],
-  ["Rings", /ring|solitaire|eternity|halo|stackable|three.?stone|mangalsutra|infinity|engagement/i],
+  [
+    "Rings",
+    /ring|solitaire|eternity|halo|stackable|three.?stone|mangalsutra|infinity|engagement/i,
+  ],
 ];
 
 // Collections to exclude (irrelevant or system collections)
@@ -31,7 +33,9 @@ const EXCLUDED_COLLECTIONS_PATTERNS = [
 /**
  * Determine the major collection type based on collection name
  */
-export function getMajorCollectionType(collectionName: string): MajorCollectionType | null {
+export function getMajorCollectionType(
+  collectionName: string,
+): MajorCollectionType | null {
   // Check if collection should be excluded
   for (const pattern of EXCLUDED_COLLECTIONS_PATTERNS) {
     if (pattern.test(collectionName)) {
@@ -53,7 +57,12 @@ export function getMajorCollectionType(collectionName: string): MajorCollectionT
  * Group collections by major category
  */
 export function groupCollectionsByType(
-  collections: Array<{ id: string; title: string; handle: string; description: string }>,
+  collections: Array<{
+    id: string;
+    title: string;
+    handle: string;
+    description: string;
+  }>,
 ): Record<MajorCollectionType, typeof collections> {
   const grouped: Record<MajorCollectionType, typeof collections> = {
     Rings: [],
@@ -77,20 +86,14 @@ export function groupCollectionsByType(
  * Get major collections with their sub-collections
  */
 export function getMajorCollectionsWithSubcollections(
-  collections: Array<{ id: string; title: string; handle: string; description: string }>,
+  collections: Array<{
+    id: string;
+    title: string;
+    handle: string;
+    description: string;
+  }>,
 ): MajorCollection[] {
   const grouped = groupCollectionsByType(collections);
-
-  // Log grouping results for debugging
-  console.log("[Collection Grouping] Detailed Breakdown:");
-  for (const [majorType, subcollections] of Object.entries(grouped)) {
-    console.log(
-      `  ${majorType}: ${subcollections.length} sub-collections`,
-      subcollections.length > 0
-        ? `(${subcollections.map((s) => s.title).join(", ")})`
-        : "",
-    );
-  }
 
   const majorCollections: MajorCollection[] = [];
 
@@ -105,9 +108,6 @@ export function getMajorCollectionsWithSubcollections(
     }
   }
 
-  console.log(
-    `[Collection Grouping] Total Major Collections: ${majorCollections.length}`,
-  );
   return majorCollections;
 }
 
@@ -116,7 +116,12 @@ export function getMajorCollectionsWithSubcollections(
  */
 export function getSubCollectionsForMajor(
   majorType: MajorCollectionType,
-  collections: Array<{ id: string; title: string; handle: string; description: string }>,
+  collections: Array<{
+    id: string;
+    title: string;
+    handle: string;
+    description: string;
+  }>,
 ): typeof collections {
   const grouped = groupCollectionsByType(collections);
   return grouped[majorType] || [];

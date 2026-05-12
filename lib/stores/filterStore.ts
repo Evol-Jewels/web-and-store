@@ -1,29 +1,18 @@
 import { create } from 'zustand';
-
-export type SortOption =
-  | 'featured'
-  | 'price-low-to-high'
-  | 'price-high-to-low'
-  | 'newest'
-  | 'carat-high-to-low';
-
-interface FilterState {
-  categories: string[];
-  shape: string[];
-  priceRange: [number, number] | null;
-  forWhom: string[];
-  size: string[];
-  occasion: string[];
-  grossWeight: string[];
-  currentSort: SortOption;
-}
+import type {
+  FilterState,
+  FilterKey,
+  FilterValue,
+  SortOption,
+  ShopifyProduct,
+} from '@/lib/types';
 
 interface FilterStore {
   filters: FilterState;
-  setFilter: (key: keyof FilterState, values: any) => void;
+  setFilter: (key: FilterKey, values: FilterValue) => void;
   clearAll: () => void;
   setSort: (sort: SortOption) => void;
-  getFilteredProducts: (products: any[]) => any[];
+  getFilteredProducts: (products: ShopifyProduct[]) => ShopifyProduct[];
   hasActiveFilters: () => boolean;
 }
 
@@ -63,39 +52,63 @@ export const useFilterStore = create<FilterStore>((set, get) => ({
     }));
   },
 
-  getFilteredProducts: (products: any[]) => {
+  getFilteredProducts: (products: ShopifyProduct[]) => {
     const { filters } = get();
     let filtered = [...products];
 
-    // Apply filters
+    // Apply shape filter
     if (filters.shape.length > 0) {
-      filtered = filtered.filter((p) => filters.shape.includes(p.shape));
+      filtered = filtered.filter((p) => {
+        const tags = p.tags || [];
+        return filters.shape.some((shape) =>
+          tags.some((tag) =>
+            tag.toLowerCase().includes(`stone_shape_${shape.toLowerCase()}`)
+          )
+        );
+      });
     }
 
+    // Apply price range filter
     if (filters.priceRange) {
       const [min, max] = filters.priceRange;
-      filtered = filtered.filter((p) => p.price >= min && p.price <= max);
+      filtered = filtered.filter((p) => {
+        const priceStr = p.variants?.[0]?.price;
+        if (!priceStr) return false;
+        const price = parseInt(String(priceStr).replace(/[^\d]/g, ''));
+        return !isNaN(price) && price >= min && price <= max;
+      });
     }
 
+    // Apply occasion filter
     if (filters.occasion.length > 0) {
-      filtered = filtered.filter((p) => filters.occasion.includes(p.occasion));
+      filtered = filtered.filter((p) => {
+        const tags = p.tags || [];
+        return filters.occasion.some((occ) =>
+          tags.some((tag) =>
+            tag.toLowerCase().includes(`ocassion_${occ.toLowerCase()}`)
+          )
+        );
+      });
     }
 
     // Apply sorting
     switch (filters.currentSort) {
       case 'price-low-to-high':
-        filtered.sort((a, b) => a.price - b.price);
+        filtered.sort((a, b) => {
+          const aPrice = parseInt(String(a.variants?.[0]?.price || '0').replace(/[^\d]/g, ''));
+          const bPrice = parseInt(String(b.variants?.[0]?.price || '0').replace(/[^\d]/g, ''));
+          return aPrice - bPrice;
+        });
         break;
       case 'price-high-to-low':
-        filtered.sort((a, b) => b.price - a.price);
-        break;
-      case 'newest':
-        filtered.sort((a, b) => (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0));
-        break;
-      case 'carat-high-to-low':
-        filtered.sort((a, b) => b.carat - a.carat);
+        filtered.sort((a, b) => {
+          const aPrice = parseInt(String(a.variants?.[0]?.price || '0').replace(/[^\d]/g, ''));
+          const bPrice = parseInt(String(b.variants?.[0]?.price || '0').replace(/[^\d]/g, ''));
+          return bPrice - aPrice;
+        });
         break;
       case 'featured':
+      case 'newest':
       default:
         // Keep original order
         break;

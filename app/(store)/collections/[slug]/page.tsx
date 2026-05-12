@@ -1,10 +1,7 @@
-import { use } from "react";
 import { CollectionPageClient } from "./CollectionPageClient";
-import { getAllCollections, getCollectionProducts } from "@/lib/shopify";
-import {
-  getSubCollectionsForMajor,
-  type MajorCollectionType,
-} from "@/lib/collectionGrouping";
+import { getAllCollections, getCollectionProducts } from "@/lib/api/shopify";
+import { getSubCollectionsForMajor } from "@/lib/utils/collectionGrouping";
+import type { ShopifyProduct, MajorCollectionType } from "@/lib/types";
 
 interface CollectionPageProps {
   params: Promise<{
@@ -23,8 +20,8 @@ export default async function CollectionPage({
     slug.slice(1)) as MajorCollectionType;
   const subCollections = getSubCollectionsForMajor(majorType, allCollections);
 
-  let products: Array<any> = [];
-  let primaryProducts: Array<any> = [];
+  let products: ShopifyProduct[] = [];
+  let primaryProducts: ShopifyProduct[] = [];
 
   // Fetch products from primary collection
   try {

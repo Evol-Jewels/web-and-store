@@ -51,7 +51,7 @@ export interface ConfiguratorSection {
   id: string;
   label: string;
   type: "swatch" | "toggle" | "chips" | "cards" | "slider" | "dropdown" | "text";
-  options: ConfiguratorOption[];
+  options: ConfiguratorOption<string | number>[];
   required: boolean;
   defaultValue?: any;
   min?: number;

@@ -1,7 +1,8 @@
 "use client";
 
 import { ChevronDown } from "lucide-react";
-import { useFilterStore, type SortOption } from "@/lib/stores/filterStore";
+import { useFilterStore } from "@/lib/stores/filterStore";
+import { SORT_OPTIONS } from "@/lib/constants";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,13 +15,6 @@ import {
 interface SortBarProps {
   resultCount: number;
 }
-
-const SORT_OPTIONS: { value: SortOption; label: string }[] = [
-  { value: "featured", label: "Featured" },
-  { value: "newest", label: "Newest" },
-  { value: "price-low-to-high", label: "Price: Low To High" },
-  { value: "price-high-to-low", label: "Price: High To Low" },
-];
 
 export function SortBar({ resultCount }: SortBarProps) {
   const { filters, setSort } = useFilterStore();

@@ -125,7 +125,7 @@ export function RingSizeGuide({ open, onOpenChange }: RingSizeGuideProps) {
               <br className="hidden md:block" />
               Contact Our Concierge At{" "}
               <span className="text-evolRed font-medium">
-                hello@evoljewels.com
+                sadiya.siddiqui@evoljewels.com
               </span>{" "}
               for Assistance.
             </p>

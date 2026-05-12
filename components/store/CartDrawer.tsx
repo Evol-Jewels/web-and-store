@@ -3,6 +3,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import Image from "next/image";
+import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/lib/stores/cartStore";
 
 export function CartDrawer() {
@@ -32,13 +33,14 @@ export function CartDrawer() {
             {/* Header */}
             <div className="flex items-center justify-between p-6 border-b border-evol-grey">
               <h2 className="font-serif text-xl text-gray-900">Your Bag</h2>
-              <button
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => setOpen(false)}
-                className="p-2 hover:bg-gray-100 rounded transition-colors"
                 aria-label="Close cart"
               >
-                <X className="w-5 h-5 text-gray-600" />
-              </button>
+                <X className="w-5 h-5" />
+              </Button>
             </div>
 
             {/* Items */}
@@ -84,33 +86,37 @@ export function CartDrawer() {
 
                       {/* Quantity controls */}
                       <div className="flex items-center gap-2 mt-3">
-                        <button
+                        <Button
+                          variant="outline"
+                          size="sm"
                           onClick={() =>
                             updateQty(item.productId, item.quantity - 1)
                           }
-                          className="px-2 py-1 border border-evol-grey rounded hover:bg-gray-50 transition-colors"
                           aria-label="Decrease quantity"
                         >
                           −
-                        </button>
+                        </Button>
                         <span className="font-sans text-sm w-6 text-center">
                           {item.quantity}
                         </span>
-                        <button
+                        <Button
+                          variant="outline"
+                          size="sm"
                           onClick={() =>
                             updateQty(item.productId, item.quantity + 1)
                           }
-                          className="px-2 py-1 border border-evol-grey rounded hover:bg-gray-50 transition-colors"
                           aria-label="Increase quantity"
                         >
                           +
-                        </button>
-                        <button
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           onClick={() => remove(item.productId)}
-                          className="ml-auto text-sm text-gray-500 hover:text-gray-700 transition-colors"
+                          className="ml-auto text-sm"
                         >
                           Remove
-                        </button>
+                        </Button>
                       </div>
                     </div>
                   </div>
@@ -130,9 +136,9 @@ export function CartDrawer() {
                 <p className="font-body text-sm text-gray-600">
                   Shipping And Taxes Calculated At Checkout
                 </p>
-                <button className="w-full h-12 bg-evolRed text-white font-sans font-medium rounded hover:bg-red-700 transition-colors">
+                <Button className="w-full h-12 bg-evolRed hover:bg-red-700 text-white font-sans font-medium">
                   Proceed To Checkout
-                </button>
+                </Button>
               </div>
             )}
           </motion.div>

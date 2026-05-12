@@ -1,24 +1,8 @@
+import type { ShopifyProduct } from "../types";
+import { logger } from "../utils/logger";
+
 const domain = process.env.SHOPIFY_STORE_DOMAIN;
 const token = process.env.SHOPIFY_ADMIN_ACCESS_TOKEN;
-
-interface ShopifyProduct {
-  id: string;
-  title: string;
-  handle: string;
-  vendor?: string;
-  productType?: string;
-  images: Array<{
-    url: string;
-    alt?: string;
-  }>;
-  variants: Array<{
-    id: string;
-    price: string;
-    title: string;
-  }>;
-  tags?: string[];
-  description?: string;
-}
 
 export async function shopifyFetch<T>(
   query: string,
@@ -50,7 +34,7 @@ export async function shopifyFetch<T>(
       const data = await response.json();
 
       if (data.errors) {
-        console.error("Shopify GraphQL errors:", data.errors);
+        logger.error("Shopify GraphQL errors:", new Error(JSON.stringify(data.errors)));
         throw new Error(`Shopify API error: ${data.errors[0]?.message}`);
       }
 
@@ -58,19 +42,14 @@ export async function shopifyFetch<T>(
     } catch (error: any) {
       const isLastAttempt = attempt === retries - 1;
 
-      // Log retry info
       if (!isLastAttempt) {
-        const delay = Math.pow(2, attempt) * 1000; // Exponential backoff: 1s, 2s, 4s
-        console.warn(
-          `[Shopify API] Attempt ${attempt + 1}/${retries} failed. Retrying in ${delay}ms...`,
-          error.message
+        const delay = Math.pow(2, attempt) * 1000;
+        logger.warn(
+          `[Shopify API] Attempt ${attempt + 1}/${retries} failed. Retrying in ${delay}ms...`
         );
         await new Promise((resolve) => setTimeout(resolve, delay));
       } else {
-        console.error(
-          `[Shopify API] All ${retries} attempts failed. Final error:`,
-          error
-        );
+        logger.error(`[Shopify API] All ${retries} attempts failed`, error);
         throw error;
       }
     }
@@ -139,15 +118,10 @@ export async function getAllProducts(): Promise<ShopifyProduct[]> {
         description: product.description,
       } as ShopifyProduct;
     });
-    products.forEach((product: ShopifyProduct) => {
-      console.log(
-        `  - ${product.title} (Type: ${product.productType || "N/A"}, Images: ${product.images.length})`,
-      );
-    });
 
     return products;
   } catch (error) {
-    console.error("Failed to fetch products:", error);
+    logger.error("Failed to fetch products:", error);
     return [];
   }
 }
@@ -224,7 +198,7 @@ export async function getProductByHandle(
       description: product.description,
     } as ShopifyProduct;
   } catch (error) {
-    console.error("Failed to fetch product:", error);
+    logger.error("Failed to fetch product:", error);
     return null;
   }
 }
@@ -263,7 +237,7 @@ export async function getProductCollections(
 
     return collections;
   } catch (error) {
-    console.error("Failed to Fetch Product Collections:", error);
+    logger.error("Failed to Fetch Product Collections:", error);
     return [];
   }
 }
@@ -313,7 +287,7 @@ export async function getCollectionProducts(
     });
 
     if (!response.data.collectionByHandle) {
-      console.error("Collection Not Found:", collectionHandle);
+      logger.error("Collection Not Found:", new Error(collectionHandle));
       return [];
     }
 
@@ -347,7 +321,7 @@ export async function getCollectionProducts(
 
     return products;
   } catch (error) {
-    console.error("Failed to Fetch Collection Products:", error);
+    logger.error("Failed to Fetch Collection Products:", error);
     return [];
   }
 }
@@ -387,7 +361,7 @@ export async function getAllCollections(): Promise<
 
     return collections;
   } catch (error) {
-    console.error("Failed to fetch collections:", error);
+    logger.error("Failed to fetch collections:", error);
     return [];
   }
 }

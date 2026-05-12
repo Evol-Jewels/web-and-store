@@ -1,11 +1,11 @@
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
-import { getAllCollections, getCollectionProducts } from "@/lib/shopify";
+import { getAllCollections, getCollectionProducts } from "@/lib/api/shopify";
 import {
   getMajorCollectionsWithSubcollections,
   getSubCollectionsForMajor,
-} from "@/lib/collectionGrouping";
+} from "@/lib/utils/collectionGrouping";
 
 interface Collection {
   id: string;
@@ -39,10 +39,6 @@ async function getCollectionImages(): Promise<Collection[]> {
         const products = await getCollectionProducts(subCollections[0].handle);
         if (products.length > 0) {
           foundImage = products[0]?.images?.[0]?.url || "";
-        } else {
-          console.log(
-            `[Collections] "${majorCollection.title}" first sub-collection has no products`,
-          );
         }
       }
 

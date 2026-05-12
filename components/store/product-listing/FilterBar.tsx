@@ -3,6 +3,7 @@
 import { useCallback, useEffect } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useFilterStore } from "@/lib/stores/filterStore";
+import type { FilterBarProps } from "@/lib/types";
 import { X, ChevronDown } from "lucide-react";
 import {
   DropdownMenu,
@@ -51,25 +52,6 @@ const DEFAULT_FILTER_OPTIONS = {
     { label: "Above 20g", value: "20-999" },
   ],
 };
-
-interface SubCollection {
-  id: string;
-  title: string;
-  handle: string;
-}
-
-interface FilterBarProps {
-  resultCount: number;
-  subCollections?: SubCollection[];
-  filterOptions?: {
-    shape: string[];
-    occasion: string[];
-    forWhom: string[];
-    size: string[];
-    priceRange: Array<{ label: string; value: string }>;
-    grossWeight: Array<{ label: string; value: string }>;
-  };
-}
 
 export function FilterBar({
   resultCount,
@@ -136,17 +118,43 @@ export function FilterBar({
     (key: string, value: string, checked: boolean) => {
       if (key === "priceRange") {
         const [min, max] = value.split("-").map(Number);
-        setFilter("priceRange" as any, checked ? [min, max] : null);
-      } else {
-        const currentValues = (filters as any)[key] || [];
-        if (checked) {
-          setFilter(key as any, [...currentValues, value]);
-        } else {
-          setFilter(
-            key as any,
-            currentValues.filter((v: string) => v !== value),
-          );
-        }
+        setFilter("priceRange", checked ? [min, max] : null);
+      } else if (key === "categories") {
+        const currentValues = filters.categories || [];
+        setFilter(
+          "categories",
+          checked ? [...currentValues, value] : currentValues.filter((v) => v !== value)
+        );
+      } else if (key === "shape") {
+        const currentValues = filters.shape || [];
+        setFilter(
+          "shape",
+          checked ? [...currentValues, value] : currentValues.filter((v) => v !== value)
+        );
+      } else if (key === "forWhom") {
+        const currentValues = filters.forWhom || [];
+        setFilter(
+          "forWhom",
+          checked ? [...currentValues, value] : currentValues.filter((v) => v !== value)
+        );
+      } else if (key === "size") {
+        const currentValues = filters.size || [];
+        setFilter(
+          "size",
+          checked ? [...currentValues, value] : currentValues.filter((v) => v !== value)
+        );
+      } else if (key === "occasion") {
+        const currentValues = filters.occasion || [];
+        setFilter(
+          "occasion",
+          checked ? [...currentValues, value] : currentValues.filter((v) => v !== value)
+        );
+      } else if (key === "grossWeight") {
+        const currentValues = filters.grossWeight || [];
+        setFilter(
+          "grossWeight",
+          checked ? [...currentValues, value] : currentValues.filter((v) => v !== value)
+        );
       }
     },
     [filters, setFilter],
@@ -156,9 +164,19 @@ export function FilterBar({
     e.preventDefault();
     e.stopPropagation();
     if (key === "priceRange") {
-      setFilter("priceRange" as any, null);
-    } else {
-      setFilter(key as any, []);
+      setFilter("priceRange", null);
+    } else if (key === "categories") {
+      setFilter("categories", []);
+    } else if (key === "shape") {
+      setFilter("shape", []);
+    } else if (key === "forWhom") {
+      setFilter("forWhom", []);
+    } else if (key === "size") {
+      setFilter("size", []);
+    } else if (key === "occasion") {
+      setFilter("occasion", []);
+    } else if (key === "grossWeight") {
+      setFilter("grossWeight", []);
     }
   };
 
@@ -169,19 +187,6 @@ export function FilterBar({
         label: v,
         value: v,
       }));
-
-  const getActivePillLabel = (key: string, value: any) => {
-    if (key === "priceRange") {
-      const range = DEFAULT_FILTER_OPTIONS.priceRange.find(
-        (r: any) => r.value === `${value[0]}-${value[1]}`,
-      );
-      return range?.label || `₹${value[0]}-${value[1]}`;
-    }
-    if (key === "availability") {
-      return value ? "In Stock" : "Out of Stock";
-    }
-    return value;
-  };
 
   const filterPills = [
     ...(subCollections && subCollections.length > 0
@@ -225,16 +230,20 @@ export function FilterBar({
       isActive: filters.forWhom.length > 0,
       values: filters.forWhom,
     },
-    {
-      key: "size",
-      label: "Size",
-      options: options.size.map((v: string) => ({
-        label: v,
-        value: v,
-      })),
-      isActive: filters.size.length > 0,
-      values: filters.size,
-    },
+    ...(options.size.length > 0
+      ? [
+          {
+            key: "size",
+            label: "Size",
+            options: options.size.map((v: string) => ({
+              label: /^\d+(\.\d+)?$/.test(v) ? `${v}"` : v,
+              value: v,
+            })),
+            isActive: filters.size.length > 0,
+            values: filters.size,
+          },
+        ]
+      : []),
     {
       key: "priceRange",
       label: "Price",
