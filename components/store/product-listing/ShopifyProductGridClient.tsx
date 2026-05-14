@@ -46,7 +46,7 @@ function ShopifyProductCardRelated({
         <div className="h-full flex flex-col cursor-pointer">
           {/* Image container */}
           <div
-            className="relative aspect-[4/5] overflow-hidden bg-evol-light-grey group"
+            className="relative aspect-4/5 overflow-hidden bg-evol-light-grey group"
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
           >

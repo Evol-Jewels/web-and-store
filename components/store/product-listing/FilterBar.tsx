@@ -289,9 +289,9 @@ export function FilterBar({
                           focus:outline-none
                           focus:bg-gray-50
                           focus:text-black
-                          data-[highlighted]:bg-gray-50
-                          data-[highlighted]:text-black
-                          data-[highlighted]:outline-none
+                          data-highlighted:bg-gray-50
+                          data-highlighted:text-black
+                          data-highlighted:outline-none
                           hover:bg-gray-50
                         "
                       >

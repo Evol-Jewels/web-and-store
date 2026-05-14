@@ -14,7 +14,7 @@ export function CollectionHeroBanner({
   return (
     <div className="relative w-full overflow-hidden">
       {/* Hero banner */}
-      <div className="relative h-[300px] md:h-[480px] w-full">
+      <div className="relative h-75 md:h-120 w-full">
         {/* Background image with overlay */}
         <div
           className="absolute inset-0 bg-cover bg-center"
@@ -26,7 +26,7 @@ export function CollectionHeroBanner({
         />
 
         {/* Gradient overlay for fade to background */}
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-evol-light-grey opacity-50" />
+        <div className="absolute inset-0 bg-linear-to-b from-transparent via-transparent to-evol-light-grey opacity-50" />
 
         {/* Content */}
         <div className="relative h-full flex flex-col justify-center items-center text-center px-6 md:px-8">
