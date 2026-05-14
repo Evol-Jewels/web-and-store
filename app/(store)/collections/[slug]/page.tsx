@@ -1,6 +1,7 @@
 import { CollectionPageClient } from "./CollectionPageClient";
 import { getAllCollections, getCollectionProducts } from "@/lib/api/shopify";
 import { getSubCollectionsForMajor } from "@/lib/utils/collectionGrouping";
+import { logger } from "@/lib/utils/logger";
 import type { ShopifyProduct, MajorCollectionType } from "@/lib/types";
 
 interface CollectionPageProps {
@@ -28,10 +29,7 @@ export default async function CollectionPage({
     primaryProducts = await getCollectionProducts(slug);
     products = primaryProducts;
   } catch (error) {
-    console.error(
-      `[Collections] Failed to Fetch from Primary Collection "${slug}":`,
-      error,
-    );
+    logger.error(`Failed to Fetch from Primary Collection "${slug}"`, error);
     primaryProducts = [];
     products = [];
   }
@@ -42,15 +40,17 @@ export default async function CollectionPage({
       const subCollectionProducts = await Promise.all(
         subCollections.map(async (subCollection) => {
           try {
-            const subProducts = await getCollectionProducts(subCollection.handle);
+            const subProducts = await getCollectionProducts(
+              subCollection.handle,
+            );
             return subProducts.map((p) => ({
               ...p,
               __subCollectionHandle: subCollection.handle,
               __subCollectionTitle: subCollection.title,
             }));
           } catch (error) {
-            console.error(
-              `[Collections] Failed to fetch sub-collection "${subCollection.handle}":`,
+            logger.error(
+              `Failed to Fetch Sub-Collection "${subCollection.handle}"`,
               error,
             );
             return [];
@@ -60,11 +60,7 @@ export default async function CollectionPage({
       const allSubProducts = subCollectionProducts.flat();
       products = [...primaryProducts, ...allSubProducts];
     } catch (error) {
-      console.error(
-        `[Collections] Failed to fetch sub-collections:`,
-        error,
-      );
-      // Fall back to primary collection only
+      logger.error("Failed to Fetch Sub-Collections", error);
       products = primaryProducts;
     }
   }
