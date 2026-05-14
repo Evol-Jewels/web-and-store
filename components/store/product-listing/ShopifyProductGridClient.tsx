@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { motion, useInView } from "framer-motion";
+import { motion, useInView } from "motion/react";
 import { useRef, useState } from "react";
 import { Heart } from "lucide-react";
 import { useWishlistStore } from "@/lib/stores/wishlistStore";

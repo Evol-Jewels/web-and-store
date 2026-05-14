@@ -6,6 +6,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 interface RingSizeGuideProps {
   open: boolean;
@@ -29,8 +37,8 @@ export function RingSizeGuide({ open, onOpenChange }: RingSizeGuideProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         className="
-          w-[150vw]
-          max-w-5xl
+          w-[95vw]!
+          max-w-[80vw]!
           h-[90vh]
           max-h-[90vh]
           overflow-hidden
@@ -41,6 +49,7 @@ export function RingSizeGuide({ open, onOpenChange }: RingSizeGuideProps) {
           rounded-2xl
           border-0
         "
+        suppressHydrationWarning
       >
         {/* Header */}
         <DialogHeader className="border-b border-evol-grey px-5 md:px-8 py-5 shrink-0">
@@ -66,50 +75,40 @@ export function RingSizeGuide({ open, onOpenChange }: RingSizeGuideProps) {
           </div>
 
           {/* Size Table */}
-          <div className="overflow-x-auto rounded-2xl border border-evol-grey">
-            <table className="w-full min-w-125">
-              <thead className="bg-evol-off-white sticky top-0 z-10">
-                <tr className="border-b border-evol-grey">
-                  <th className="font-sans font-semibold text-gray-900 py-4 px-4 md:px-6 text-left text-sm md:text-base whitespace-nowrap">
+          <div className="rounded-2xl border border-evol-grey overflow-hidden">
+            <Table>
+              <TableHeader className="bg-evol-off-white">
+                <TableRow className="border-b border-evol-grey">
+                  <TableHead className="font-sans font-semibold text-gray-900 text-left text-sm md:text-base whitespace-nowrap">
                     Indian Size
-                  </th>
-
-                  <th className="font-sans font-semibold text-gray-900 py-4 px-4 md:px-6 text-left text-sm md:text-base whitespace-nowrap">
+                  </TableHead>
+                  <TableHead className="font-sans font-semibold text-gray-900 text-left text-sm md:text-base whitespace-nowrap">
                     Diameter (MM)
-                  </th>
-
-                  <th className="font-sans font-semibold text-gray-900 py-4 px-4 md:px-6 text-left text-sm md:text-base whitespace-nowrap">
+                  </TableHead>
+                  <TableHead className="font-sans font-semibold text-gray-900 text-left text-sm md:text-base whitespace-nowrap">
                     Circumference (MM)
-                  </th>
-                </tr>
-              </thead>
-
-              <tbody>
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {RING_SIZES.map((size) => (
-                  <tr
+                  <TableRow
                     key={size.indian}
-                    className="
-                      border-b
-                      border-evol-grey
-                      transition-colors
-                      hover:bg-gray-50
-                    "
+                    className="border-b border-evol-grey transition-colors hover:bg-gray-50"
                   >
-                    <td className="font-sans text-gray-900 py-4 px-4 md:px-6 text-sm md:text-base">
+                    <TableCell className="font-sans text-gray-900 text-sm md:text-base">
                       {size.indian}
-                    </td>
-
-                    <td className="font-sans text-gray-600 py-4 px-4 md:px-6 text-sm md:text-base">
+                    </TableCell>
+                    <TableCell className="font-sans text-gray-600 text-sm md:text-base">
                       {size.diameter}
-                    </td>
-
-                    <td className="font-sans text-gray-600 py-4 px-4 md:px-6 text-sm md:text-base">
+                    </TableCell>
+                    <TableCell className="font-sans text-gray-600 text-sm md:text-base">
                       {size.circumference}
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </div>
 
           {/* Additional Info */}

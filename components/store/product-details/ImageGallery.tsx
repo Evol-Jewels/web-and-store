@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback, useEffect } from "react";
 import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import { Expand, X, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface ImageGalleryProps {
@@ -191,7 +191,7 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
                 <button
                   key={idx}
                   onClick={() => handleThumbnailClick(idx)}
-                  className={`relative flex-shrink-0 w-16 h-16 rounded transition-all ${
+                  className={`relative shrink-0 w-16 h-16 rounded transition-all ${
                     mainImageIndex === idx
                       ? "ring-2 ring-gray-900"
                       : "ring-1 ring-evol-grey"

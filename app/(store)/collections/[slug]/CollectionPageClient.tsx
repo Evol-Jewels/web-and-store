@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { useFilterStore } from "@/lib/stores/filterStore";
 import { extractFilterOptions } from "@/lib/utils/filterOptionExtractor";
@@ -12,7 +12,7 @@ import { SearchBar } from "@/components/store/product-listing/SearchBar";
 import { SortBar } from "@/components/store/product-listing/SortBar";
 import { ShopifyProductGrid } from "@/components/store/product-listing/ShopifyProductGrid";
 import { EmptyState } from "@/components/store/product-listing/EmptyState";
-import { Pagination } from "@/components/store/product-listing/Pagination";
+import { InfiniteScroll } from "@/components/store/product-listing/InfiniteScroll";
 import type { ShopifyProduct, CollectionPageClientProps } from "@/lib/types";
 
 const ITEMS_PER_PAGE = 12;
@@ -23,7 +23,7 @@ export function CollectionPageClient({
   collectionData,
   subCollections,
 }: CollectionPageClientProps) {
-  const [currentPage, setCurrentPage] = useState(1);
+  const [displayCount, setDisplayCount] = useState(ITEMS_PER_PAGE);
   const [searchQuery, setSearchQuery] = useState("");
   const { filters } = useFilterStore();
   const searchParams = useSearchParams();
@@ -32,6 +32,11 @@ export function CollectionPageClient({
     const collectionProducts = filterProductsByType(products, slug);
     return extractFilterOptions(collectionProducts, slug);
   }, [products, slug]);
+
+  // Reset display count when filters or search changes
+  useEffect(() => {
+    setDisplayCount(ITEMS_PER_PAGE);
+  }, [filters, searchQuery]);
 
   const filteredProducts = useMemo(() => {
     const uniqueProducts = Array.from(
@@ -322,12 +327,13 @@ export function CollectionPageClient({
     return sorted;
   }, [filteredProducts, filters.currentSort]);
 
-  // Paginate products
-  const startIdx = (currentPage - 1) * ITEMS_PER_PAGE;
-  const endIdx = startIdx + ITEMS_PER_PAGE;
-  const paginatedProducts = sortedProducts.slice(startIdx, endIdx);
+  // Display products with infinite scroll
+  const displayedProducts = sortedProducts.slice(0, displayCount);
+  const hasMore = displayCount < sortedProducts.length;
 
-  const totalPages = Math.ceil(sortedProducts.length / ITEMS_PER_PAGE);
+  const handleLoadMore = useCallback(() => {
+    setDisplayCount((prev) => prev + ITEMS_PER_PAGE);
+  }, []);
 
   return (
     <div className="min-h-screen bg-evol-light-grey">
@@ -359,16 +365,10 @@ export function CollectionPageClient({
               <SortBar resultCount={filteredProducts.length} />
 
               {/* Product Grid */}
-              <ShopifyProductGrid products={paginatedProducts} />
+              <ShopifyProductGrid products={displayedProducts} />
 
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <Pagination
-                  totalItems={filteredProducts.length}
-                  itemsPerPage={ITEMS_PER_PAGE}
-                  onPageChange={setCurrentPage}
-                />
-              )}
+              {/* Infinite Scroll Trigger */}
+              <InfiniteScroll hasMore={hasMore} onLoadMore={handleLoadMore} />
             </>
           )}
         </div>

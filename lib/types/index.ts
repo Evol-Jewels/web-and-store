@@ -40,3 +40,17 @@ export {
   RING_PATTERNS,
   NECKLACE_PATTERNS,
 } from "./constants";
+
+export {
+  DEFAULT_FILTER_OPTIONS,
+  FILTER_PARAM_MAPPING,
+} from "./filterConfig";
+
+export type { FilterParamKey } from "./filterConfig";
+
+export {
+  COLLECTION_METADATA,
+  getCollectionMetadata,
+} from "./collectionMetadata";
+
+export type { CollectionDataKey, CollectionDataItem } from "./collectionMetadata";

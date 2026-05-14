@@ -1,9 +1,12 @@
 "use client";
 
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useFilterStore } from "@/lib/stores/filterStore";
 import type { FilterBarProps } from "@/lib/types";
+import { DEFAULT_FILTER_OPTIONS } from "@/lib/types/filterConfig";
+import { filtersToURLParams } from "@/lib/utils/filterParamsMapping";
+import { parseFilterParams } from "@/lib/utils/filterParamParser";
 import { X, ChevronDown } from "lucide-react";
 import {
   DropdownMenu,
@@ -13,45 +16,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
-const DEFAULT_FILTER_OPTIONS = {
-  shape: [
-    "Round",
-    "Oval",
-    "Emerald",
-    "Pear",
-    "Marquise",
-    "Cushion",
-    "Heart",
-    "Radiant",
-    "Asscher",
-    "Trillion",
-    "Solitaire",
-  ],
-  occasion: [
-    "Dailywear",
-    "Engagement",
-    "Wedding",
-    "Anniversary",
-    "Fancy",
-    "Birthday",
-    "Festival",
-  ],
-  forWhom: ["Women", "Men", "Couples", "Unisex"],
-  size: ["Small", "Medium", "Large"],
-  priceRange: [
-    { label: "₹0 - ₹50K", value: "0-50000" },
-    { label: "₹50K - ₹100K", value: "50000-100000" },
-    { label: "₹100K - ₹200K", value: "100000-200000" },
-    { label: "₹200K+", value: "200000-9999999" },
-  ],
-  grossWeight: [
-    { label: "Below 5g", value: "0-5" },
-    { label: "5g - 10g", value: "5-10" },
-    { label: "10g - 20g", value: "10-20" },
-    { label: "Above 20g", value: "20-999" },
-  ],
-};
 
 export function FilterBar({
   resultCount,
@@ -68,50 +32,22 @@ export function FilterBar({
 
   // Sync URL with filters
   useEffect(() => {
-    const params = new URLSearchParams();
-
-    if (filters.categories.length > 0)
-      params.set("categories", filters.categories.join(","));
-    if (filters.shape.length > 0) params.set("shape", filters.shape.join(","));
-    if (filters.priceRange)
-      params.set("price", `${filters.priceRange[0]}-${filters.priceRange[1]}`);
-    if (filters.forWhom.length > 0)
-      params.set("forWhom", filters.forWhom.join(","));
-    if (filters.size.length > 0) params.set("size", filters.size.join(","));
-    if (filters.occasion.length > 0)
-      params.set("occasion", filters.occasion.join(","));
-    if (filters.grossWeight.length > 0)
-      params.set("weight", filters.grossWeight.join(","));
-
+    const params = filtersToURLParams(filters);
     const queryString = params.toString();
     const newUrl = queryString ? `${pathname}?${queryString}` : pathname;
     router.replace(newUrl);
-  }, [filters, router]);
+  }, [filters, pathname, router]);
 
   // Load filters from URL on mount
   useEffect(() => {
-    const categories =
-      searchParams.get("categories")?.split(",").filter(Boolean) || [];
-    const shape = searchParams.get("shape")?.split(",").filter(Boolean) || [];
-    const price = searchParams.get("price");
-    const forWhom =
-      searchParams.get("forWhom")?.split(",").filter(Boolean) || [];
-    const size = searchParams.get("size")?.split(",").filter(Boolean) || [];
-    const occasion =
-      searchParams.get("occasion")?.split(",").filter(Boolean) || [];
-    const weight =
-      searchParams.get("weight")?.split(",").filter(Boolean) || [];
-
-    if (categories.length > 0) setFilter("categories", categories);
-    if (shape.length > 0) setFilter("shape", shape);
-    if (price) {
-      const [min, max] = price.split("-").map(Number);
-      setFilter("priceRange", [min, max]);
-    }
-    if (forWhom.length > 0) setFilter("forWhom", forWhom);
-    if (size.length > 0) setFilter("size", size);
-    if (occasion.length > 0) setFilter("occasion", occasion);
-    if (weight.length > 0) setFilter("grossWeight", weight);
+    const updates = parseFilterParams(searchParams);
+    if (updates.categories) setFilter("categories", updates.categories);
+    if (updates.shape) setFilter("shape", updates.shape);
+    if (updates.priceRange) setFilter("priceRange", updates.priceRange);
+    if (updates.forWhom) setFilter("forWhom", updates.forWhom);
+    if (updates.size) setFilter("size", updates.size);
+    if (updates.occasion) setFilter("occasion", updates.occasion);
+    if (updates.grossWeight) setFilter("grossWeight", updates.grossWeight);
   }, []);
 
   const handleFilterChange = useCallback(
@@ -123,37 +59,49 @@ export function FilterBar({
         const currentValues = filters.categories || [];
         setFilter(
           "categories",
-          checked ? [...currentValues, value] : currentValues.filter((v) => v !== value)
+          checked
+            ? [...currentValues, value]
+            : currentValues.filter((v) => v !== value),
         );
       } else if (key === "shape") {
         const currentValues = filters.shape || [];
         setFilter(
           "shape",
-          checked ? [...currentValues, value] : currentValues.filter((v) => v !== value)
+          checked
+            ? [...currentValues, value]
+            : currentValues.filter((v) => v !== value),
         );
       } else if (key === "forWhom") {
         const currentValues = filters.forWhom || [];
         setFilter(
           "forWhom",
-          checked ? [...currentValues, value] : currentValues.filter((v) => v !== value)
+          checked
+            ? [...currentValues, value]
+            : currentValues.filter((v) => v !== value),
         );
       } else if (key === "size") {
         const currentValues = filters.size || [];
         setFilter(
           "size",
-          checked ? [...currentValues, value] : currentValues.filter((v) => v !== value)
+          checked
+            ? [...currentValues, value]
+            : currentValues.filter((v) => v !== value),
         );
       } else if (key === "occasion") {
         const currentValues = filters.occasion || [];
         setFilter(
           "occasion",
-          checked ? [...currentValues, value] : currentValues.filter((v) => v !== value)
+          checked
+            ? [...currentValues, value]
+            : currentValues.filter((v) => v !== value),
         );
       } else if (key === "grossWeight") {
         const currentValues = filters.grossWeight || [];
         setFilter(
           "grossWeight",
-          checked ? [...currentValues, value] : currentValues.filter((v) => v !== value)
+          checked
+            ? [...currentValues, value]
+            : currentValues.filter((v) => v !== value),
         );
       }
     },
@@ -180,95 +128,106 @@ export function FilterBar({
     }
   };
 
-  // Determine categories based on sub-collections or defaults
-  const categoryOptions = subCollections
-    ? subCollections.map((sc) => ({ label: sc.title, value: sc.handle }))
-    : ["Rings", "Earrings", "Necklaces", "Bracelets", "Pendants"].map((v) => ({
-        label: v,
-        value: v,
-      }));
-
-  const filterPills = [
-    ...(subCollections && subCollections.length > 0
-      ? [
-          {
-            key: "categories",
-            label: "Categories",
-            options: categoryOptions,
-            isActive: filters.categories.length > 0,
-            values: filters.categories,
-          },
-        ]
-      : []),
-    {
-      key: "shape",
-      label: "Stone Shape",
-      options: options.shape.map((v: string) => ({
-        label: v,
-        value: v,
-      })),
-      isActive: filters.shape.length > 0,
-      values: filters.shape,
-    },
-    {
-      key: "occasion",
-      label: "Occasion",
-      options: options.occasion.map((v: string) => ({
-        label: v,
-        value: v,
-      })),
-      isActive: filters.occasion.length > 0,
-      values: filters.occasion,
-    },
-    {
-      key: "forWhom",
-      label: "For Whom?",
-      options: options.forWhom.map((v: string) => ({
-        label: v,
-        value: v,
-      })),
-      isActive: filters.forWhom.length > 0,
-      values: filters.forWhom,
-    },
-    ...(options.size.length > 0
-      ? [
-          {
-            key: "size",
-            label: "Size",
-            options: options.size.map((v: string) => ({
-              label: /^\d+(\.\d+)?$/.test(v) ? `${v}"` : v,
+  const categoryOptions = useMemo(
+    () =>
+      subCollections
+        ? subCollections.map((sc) => ({ label: sc.title, value: sc.handle }))
+        : ["Rings", "Earrings", "Necklaces", "Bracelets", "Pendants"].map(
+            (v) => ({
+              label: v,
               value: v,
-            })),
-            isActive: filters.size.length > 0,
-            values: filters.size,
-          },
-        ]
-      : []),
-    {
-      key: "priceRange",
-      label: "Price",
-      options: options.priceRange,
-      isActive: filters.priceRange !== null,
-      values: filters.priceRange
-        ? [`${filters.priceRange[0]}-${filters.priceRange[1]}`]
-        : [],
-    },
-    {
-      key: "grossWeight",
-      label: "Gross Weight",
-      options: options.grossWeight,
-      isActive: filters.grossWeight.length > 0,
-      values: filters.grossWeight,
-    },
-  ];
+            }),
+          ),
+    [subCollections],
+  );
+
+  const filterPills = useMemo(
+    () => [
+      ...(subCollections && subCollections.length > 0
+        ? [
+            {
+              key: "categories",
+              label: "Categories",
+              options: categoryOptions,
+              isActive: filters.categories.length > 0,
+              values: filters.categories,
+            },
+          ]
+        : []),
+      {
+        key: "shape",
+        label: "Stone Shape",
+        options: options.shape.map((v: string) => ({
+          label: v,
+          value: v,
+        })),
+        isActive: filters.shape.length > 0,
+        values: filters.shape,
+      },
+      {
+        key: "occasion",
+        label: "Occasion",
+        options: options.occasion.map((v: string) => ({
+          label: v,
+          value: v,
+        })),
+        isActive: filters.occasion.length > 0,
+        values: filters.occasion,
+      },
+      {
+        key: "forWhom",
+        label: "For Whom?",
+        options: options.forWhom.map((v: string) => ({
+          label: v,
+          value: v,
+        })),
+        isActive: filters.forWhom.length > 0,
+        values: filters.forWhom,
+      },
+      ...(options.size.length > 0
+        ? [
+            {
+              key: "size",
+              label: "Size",
+              options: options.size.map((v: string) => ({
+                label: /^\d+(\.\d+)?$/.test(v) ? `${v}"` : v,
+                value: v,
+              })),
+              isActive: filters.size.length > 0,
+              values: filters.size,
+            },
+          ]
+        : []),
+      {
+        key: "priceRange",
+        label: "Price",
+        options: options.priceRange,
+        isActive: filters.priceRange !== null,
+        values: filters.priceRange
+          ? [`${filters.priceRange[0]}-${filters.priceRange[1]}`]
+          : [],
+      },
+      {
+        key: "grossWeight",
+        label: "Gross Weight",
+        options: options.grossWeight,
+        isActive: filters.grossWeight.length > 0,
+        values: filters.grossWeight,
+      },
+    ],
+    [subCollections, filters, options],
+  );
 
   return (
     <div className="w-full bg-white border-b border-evol-grey">
       <div className="w-full overflow-x-auto scrollbar-hide">
-        <div className="flex items-center justify-center gap-2 md:gap-3 px-4 md:px-6 py-3 flex-wrap">
+        <div
+          className="flex items-center justify-center gap-2 md:gap-3 px-4 md:px-6 py-3 flex-wrap"
+          suppressHydrationWarning
+        >
           {/* Filter pills */}
           {filterPills.map((pill) => (
-            <div key={pill.key} className="relative">
+            <div key={pill.key} className="relative" suppressHydrationWarning>
               {pill.isActive ? (
                 <button
                   onClick={(e) => handleClearFilter(pill.key, e)}
@@ -280,16 +239,31 @@ export function FilterBar({
               ) : (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <button
-                      className="flex items-center gap-2 px-4 md:px-5 py-2.5 rounded-md whitespace-nowrap text-sm md:text-base font-medium bg-white border border-evol-grey text-evol-dark-grey hover:border-evolRed hover:shadow-sm transition-all duration-200"
-                    >
-                      <span className="font-sans font-medium">{pill.label}</span>
+                    <button className="flex items-center gap-2 px-4 md:px-5 py-2.5 rounded-md! whitespace-nowrap text-sm md:text-base font-medium bg-white border border-evol-grey text-evol-dark-grey hover:border-evolRed hover:shadow-sm transition-all duration-200">
+                      {" "}
+                      <span className="font-sans font-medium">
+                        {pill.label}
+                      </span>
                       <ChevronDown className="w-4 h-4 md:w-5 md:h-5" />
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent
                     align="start"
-                    className="w-56 md:w-64 bg-white border border-evol-grey"
+                    sideOffset={8}
+                    className="
+                        w-56
+                        md:w-64
+                        bg-white
+                        border
+                        border-evol-grey
+                        rounded-md!
+                        shadow-lg
+                        p-0
+                        data-[state=open]:animate-none
+                        data-[state=closed]:animate-none
+                        data-[side=bottom]:slide-in-from-top-0
+                      "
+                    suppressHydrationWarning
                   >
                     <DropdownMenuLabel className="font-serif text-sm md:text-base px-3 py-2.5">
                       {pill.label}
@@ -302,7 +276,24 @@ export function FilterBar({
                         onCheckedChange={(checked) =>
                           handleFilterChange(pill.key, option.value, checked)
                         }
-                        className="px-3 py-2.5 text-sm md:text-base cursor-pointer hover:bg-gray-50 transition-colors"
+                        className="
+                          px-3
+                          py-2.5
+                          text-sm
+                          md:text-base
+                          cursor-pointer
+                          transition-colors
+                          rounded-none
+                          border-0
+                          outline-none
+                          focus:outline-none
+                          focus:bg-gray-50
+                          focus:text-black
+                          data-[highlighted]:bg-gray-50
+                          data-[highlighted]:text-black
+                          data-[highlighted]:outline-none
+                          hover:bg-gray-50
+                        "
                       >
                         <span className="font-body text-sm md:text-base">
                           {option.label}

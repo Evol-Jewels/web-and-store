@@ -18,6 +18,7 @@ export interface CollectionPageClientProps {
   products: ShopifyProduct[];
   collectionData: CollectionData;
   subCollections?: SubCollection[];
+  subCollectionHandles?: string[];
 }
 
 export type { ShopifyProduct, ShopifyImage, ShopifyVariant } from "./shopify";
