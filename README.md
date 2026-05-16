@@ -35,7 +35,7 @@ The setup is straightforward as with any other next.js app.
 
 ```bash
 # Clone the repo first
-git clone <repo-url>
+git clone https://github.com/Evol-Jewels/web-and-store.git
 cd web-and-store
 
 pnpm install
