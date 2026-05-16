@@ -2,15 +2,15 @@
 
 import { useState, useMemo } from "react";
 import { motion } from "motion/react";
+import { Heart, Shield, Truck, RotateCcw, Loader2, Check } from "lucide-react";
+import { Label } from "@/components/ui/label";
 import {
-  Heart,
-  Shield,
-  Truck,
-  RotateCcw,
-  Loader2,
-  Check,
-  Info,
-} from "lucide-react";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { ImageGallery } from "@/components/store/product-details/ImageGallery";
 import { ExpertConsultation } from "@/components/store/product-details/ExpertConsultation";
 import { RingSizeGuide } from "@/components/store/product-details/RingSizeGuide";
@@ -317,26 +317,34 @@ export function ProductPageClient({ shopifyProduct }: ProductPageClientProps) {
 
                   if (section.type === "dropdown") {
                     return (
-                      <div key={section.id}>
-                        <label className="font-sans text-sm tracking-wider text-gray-500 uppercase block mb-3">
+                      <div key={section.id} className="space-y-2">
+                        <Label className="font-sans text-sm tracking-wider text-gray-500 uppercase">
                           {section.label}
-                        </label>
-                        <select
-                          value={selectedValue || ""}
-                          onChange={(e) =>
+                        </Label>
+                        <Select
+                          value={String(selectedValue || "")}
+                          onValueChange={(value) =>
                             setSelectedOptions((prev) => ({
                               ...prev,
-                              [section.id]: e.target.value,
+                              [section.id]: value,
                             }))
                           }
-                          className="w-full px-4 py-2 rounded-lg border border-evol-grey font-sans text-sm text-gray-600 focus:outline-none focus:border-gray-400"
                         >
-                          {section.options.map((option) => (
-                            <option key={option.value} value={option.value}>
-                              {option.label}
-                            </option>
-                          ))}
-                        </select>
+                          <SelectTrigger className="w-full px-3 py-2 rounded text-md text-evol-dark-grey">
+                            <SelectValue placeholder="Select an Option" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-white">
+                            {section.options.map((option) => (
+                              <SelectItem
+                                key={option.value}
+                                value={String(option.value)}
+                                className="text-md"
+                              >
+                                {option.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
                     );
                   }

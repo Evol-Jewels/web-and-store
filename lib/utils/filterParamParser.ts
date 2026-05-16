@@ -24,68 +24,24 @@ export function parseFilterParams(
 ): FilterParamUpdates {
   const updates: FilterParamUpdates = {};
 
-  // Parse categories
-  const categories = searchParams
-    .get(FILTER_PARAM_MAPPING.categories)
-    ?.split(",")
-    .filter(Boolean);
-  if (categories?.length) {
-    updates.categories = categories;
-  }
+  Object.entries(FILTER_PARAM_MAPPING).forEach(([filterKey, paramKey]) => {
+    const paramValue = searchParams.get(paramKey);
+    if (!paramValue) return;
 
-  // Parse shape
-  const shape = searchParams
-    .get(FILTER_PARAM_MAPPING.shape)
-    ?.split(",")
-    .filter(Boolean);
-  if (shape?.length) {
-    updates.shape = shape;
-  }
-
-  // Parse price range
-  const priceStr = searchParams.get(FILTER_PARAM_MAPPING.priceRange);
-  if (priceStr) {
-    const [min, max] = priceStr.split("-").map(Number);
-    if (!isNaN(min) && !isNaN(max)) {
-      updates.priceRange = [min, max];
+    if (filterKey === "priceRange") {
+      // Parse price range from "min-max" format
+      const [min, max] = paramValue.split("-").map(Number);
+      if (!isNaN(min) && !isNaN(max)) {
+        (updates as any)[filterKey] = [min, max];
+      }
+    } else {
+      // Parse array filters by splitting on comma
+      const values = paramValue.split(",").filter(Boolean);
+      if (values.length > 0) {
+        (updates as any)[filterKey] = values;
+      }
     }
-  }
-
-  // Parse forWhom
-  const forWhom = searchParams
-    .get(FILTER_PARAM_MAPPING.forWhom)
-    ?.split(",")
-    .filter(Boolean);
-  if (forWhom?.length) {
-    updates.forWhom = forWhom;
-  }
-
-  // Parse size
-  const size = searchParams
-    .get(FILTER_PARAM_MAPPING.size)
-    ?.split(",")
-    .filter(Boolean);
-  if (size?.length) {
-    updates.size = size;
-  }
-
-  // Parse occasion
-  const occasion = searchParams
-    .get(FILTER_PARAM_MAPPING.occasion)
-    ?.split(",")
-    .filter(Boolean);
-  if (occasion?.length) {
-    updates.occasion = occasion;
-  }
-
-  // Parse grossWeight
-  const weight = searchParams
-    .get(FILTER_PARAM_MAPPING.grossWeight)
-    ?.split(",")
-    .filter(Boolean);
-  if (weight?.length) {
-    updates.grossWeight = weight;
-  }
+  });
 
   return updates;
 }

@@ -118,7 +118,12 @@ function ShopifyProductCardRelated({
 export function ShopifyProductGridClient({
   products,
 }: ShopifyProductGridClientProps) {
-  if (products.length === 0) {
+  // Deduplicate products by ID to prevent duplicate key warnings
+  const uniqueProducts = Array.from(
+    new Map(products.map((p) => [p.id, p])).values()
+  );
+
+  if (uniqueProducts.length === 0) {
     return null;
   }
 
@@ -126,9 +131,9 @@ export function ShopifyProductGridClient({
     <>
       {/* Desktop: 4-column grid */}
       <div className="hidden md:grid grid-cols-4 gap-6">
-        {products.map((product, index) => (
+        {uniqueProducts.map((product, index) => (
           <ShopifyProductCardRelated
-            key={product.id}
+            key={`desktop-${product.id}`}
             product={product}
             index={index}
           />
@@ -137,9 +142,9 @@ export function ShopifyProductGridClient({
 
       {/* Tablet: 2-column grid */}
       <div className="hidden sm:grid md:hidden grid-cols-2 gap-4">
-        {products.map((product, index) => (
+        {uniqueProducts.map((product, index) => (
           <ShopifyProductCardRelated
-            key={product.id}
+            key={`tablet-${product.id}`}
             product={product}
             index={index}
           />
@@ -148,8 +153,8 @@ export function ShopifyProductGridClient({
 
       {/* Mobile: 1-column grid */}
       <div className="sm:hidden">
-        {products.map((product, index) => (
-          <div key={product.id} className="mb-6">
+        {uniqueProducts.map((product, index) => (
+          <div key={`mobile-${product.id}`} className="mb-6">
             <ShopifyProductCardRelated product={product} index={index} />
           </div>
         ))}

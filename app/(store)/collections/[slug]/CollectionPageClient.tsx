@@ -165,11 +165,33 @@ export function CollectionPageClient({
     if (filters.size.length > 0) {
       const selectedSizes = filters.size;
       const slugLower = slug.toLowerCase();
-      const isBracelet = slugLower.includes("bracelet");
 
       filtered = filtered.filter((p) => {
         const tags = p.tags || [];
         const variants = p.variants || [];
+
+        // Determine if this product is a bracelet or ring based on its tags and handle
+        const productTags = tags.map((t: string) => t.toLowerCase());
+        const isBraceletProduct = productTags.some((tag) =>
+          tag.includes("bracelet") || tag.includes("subcollection_bracelets")
+        );
+        const isRingProduct = productTags.some((tag) =>
+          tag.includes("ring") || tag.includes("subcollection_rings")
+        );
+        const isNecklaceProduct = productTags.some((tag) =>
+          tag.includes("necklace") || tag.includes("subcollection_necklaces")
+        );
+        const isEarringProduct = productTags.some((tag) =>
+          tag.includes("earring") || tag.includes("subcollection_earrings")
+        );
+        const isPendantProduct = productTags.some((tag) =>
+          tag.includes("pendant") || tag.includes("subcollection_pendants")
+        );
+
+        // Skip filtering for products that don't have size variants
+        if (isNecklaceProduct || isEarringProduct || isPendantProduct) {
+          return false;
+        }
 
         const tagMatch = tags.some((tag: string) => {
           const tagLower = tag.toLowerCase();
@@ -193,7 +215,8 @@ export function CollectionPageClient({
           const title = variant.title;
           const titleLower = title.toLowerCase();
 
-          if (slugLower === "rings" || slugLower === "ring") {
+          // For ring products or when on rings page
+          if (isRingProduct || slugLower === "rings" || slugLower === "ring") {
             const ringPatterns = [
               /\/\s*(\d+)\s*$/,
               /\/\s*(\d+)\s*,/,
@@ -213,7 +236,8 @@ export function CollectionPageClient({
             return false;
           }
 
-          if (isBracelet) {
+          // For bracelet products or when on bracelets page
+          if (isBraceletProduct || slugLower.includes("bracelet")) {
             const parts = title.split("/");
             if (parts.length < 2) return false;
 

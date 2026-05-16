@@ -3,11 +3,43 @@
 import { motion, AnimatePresence } from "motion/react";
 import { X } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/lib/stores/cartStore";
+import { useCheckoutStore } from "@/lib/stores/checkoutStore";
 
 export function CartDrawer() {
+  const router = useRouter();
   const { items, isOpen, setOpen, total, remove, updateQty } = useCartStore();
+  const { setCartItems } = useCheckoutStore();
+
+  const handleProceedToCheckout = () => {
+    // Convert cart items to checkout format
+    const checkoutItems = items.map((item) => {
+      // Build configuration string safely, only including non-undefined values
+      const configParts = [item.metal];
+      if (item.carat) configParts.push(`${item.carat} ct`);
+      if (item.size) configParts.push(`Size ${item.size}`);
+      const configuration = configParts.join(" · ");
+
+      return {
+        id: item.productId,
+        productId: item.productId,
+        title: item.name,
+        image: item.image,
+        configuration,
+        price: item.price,
+        quantity: item.quantity,
+      };
+    });
+
+    // Set items in checkout store
+    setCartItems(checkoutItems);
+
+    // Close drawer and navigate to checkout
+    setOpen(false);
+    router.push("/checkout?step=delivery");
+  };
 
   return (
     <AnimatePresence>
@@ -78,7 +110,9 @@ export function CartDrawer() {
                         {item.name}
                       </h3>
                       <p className="font-body text-sm text-gray-600 mt-1">
-                        {item.metal} · {item.carat} ct · Size {item.size}
+                        {item.metal}
+                        {item.carat && ` · ${item.carat} ct`}
+                        {item.size && ` · Size ${item.size}`}
                       </p>
                       <p className="font-sans font-medium text-sm text-gray-900 mt-2">
                         ₹{item.price.toLocaleString("en-IN")}
@@ -136,7 +170,10 @@ export function CartDrawer() {
                 <p className="font-body text-sm text-gray-600">
                   Shipping And Taxes Calculated At Checkout
                 </p>
-                <Button className="w-full h-12 bg-evolRed hover:bg-red-700 text-white font-sans font-medium">
+                <Button
+                  onClick={handleProceedToCheckout}
+                  className="w-full h-12 bg-evolRed hover:bg-red-700 text-white font-sans font-medium"
+                >
                   Proceed To Checkout
                 </Button>
               </div>

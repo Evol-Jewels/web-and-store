@@ -11,36 +11,18 @@ import { FILTER_PARAM_MAPPING } from "@/lib/types/filterConfig";
 export function filtersToURLParams(filters: FilterState): URLSearchParams {
   const params = new URLSearchParams();
 
-  if (filters.categories.length > 0) {
-    params.set(FILTER_PARAM_MAPPING.categories, filters.categories.join(","));
-  }
+  Object.entries(FILTER_PARAM_MAPPING).forEach(([filterKey, paramKey]) => {
+    const value = filters[filterKey as keyof FilterState];
 
-  if (filters.shape.length > 0) {
-    params.set(FILTER_PARAM_MAPPING.shape, filters.shape.join(","));
-  }
-
-  if (filters.priceRange) {
-    params.set(
-      FILTER_PARAM_MAPPING.priceRange,
-      `${filters.priceRange[0]}-${filters.priceRange[1]}`
-    );
-  }
-
-  if (filters.forWhom.length > 0) {
-    params.set(FILTER_PARAM_MAPPING.forWhom, filters.forWhom.join(","));
-  }
-
-  if (filters.size.length > 0) {
-    params.set(FILTER_PARAM_MAPPING.size, filters.size.join(","));
-  }
-
-  if (filters.occasion.length > 0) {
-    params.set(FILTER_PARAM_MAPPING.occasion, filters.occasion.join(","));
-  }
-
-  if (filters.grossWeight.length > 0) {
-    params.set(FILTER_PARAM_MAPPING.grossWeight, filters.grossWeight.join(","));
-  }
+    // Handle priceRange separately (range format: "min-max")
+    if (filterKey === "priceRange" && value) {
+      params.set(paramKey, `${value[0]}-${value[1]}`);
+    }
+    // Handle array filters (join with comma)
+    else if (Array.isArray(value) && value.length > 0) {
+      params.set(paramKey, value.join(","));
+    }
+  });
 
   return params;
 }

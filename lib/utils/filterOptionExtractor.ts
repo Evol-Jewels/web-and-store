@@ -1,6 +1,11 @@
 import type { ShopifyProduct, FilterOptions } from "../types";
 import { FOR_WHOM_MAPPING } from "../constants";
-import { RING_SIZES, NECKLACE_LENGTHS, BRACELET_SIZES, METAL_COLORS } from "../types";
+import {
+  RING_SIZES,
+  NECKLACE_LENGTHS,
+  BRACELET_SIZES,
+  METAL_COLORS,
+} from "../types";
 
 /**
  * Extract all unique shape values from product tags
@@ -11,7 +16,7 @@ function extractShapes(products: ShopifyProduct[]): string[] {
     (p.tags || []).forEach((tag) => {
       const match = tag.match(/stone_shape_(.+)/i);
       if (match) {
-        shapes.add(match[1]);
+        shapes.add(match[1].charAt(0).toUpperCase() + match[1].slice(1));
       }
     });
   });
@@ -45,11 +50,13 @@ function extractForWhom(products: ShopifyProduct[]): string[] {
       // Match Gender_* tags and direct for_* tags
       if (tagLower.startsWith("gender_")) {
         const value = tagLower.substring(7); // Remove "gender_" prefix
-        const normalized = FOR_WHOM_MAPPING[`gender_${value}`] || FOR_WHOM_MAPPING[value];
+        const normalized =
+          FOR_WHOM_MAPPING[`gender_${value}`] || FOR_WHOM_MAPPING[value];
         if (normalized) forWhom.add(normalized);
       } else if (tagLower.startsWith("for_")) {
         const value = tagLower.substring(4); // Remove "for_" prefix
-        const normalized = FOR_WHOM_MAPPING[`for_${value}`] || FOR_WHOM_MAPPING[value];
+        const normalized =
+          FOR_WHOM_MAPPING[`for_${value}`] || FOR_WHOM_MAPPING[value];
         if (normalized) forWhom.add(normalized);
       } else {
         // Check for direct matches like "Mother", "Father", etc.
@@ -64,10 +71,7 @@ function extractForWhom(products: ShopifyProduct[]): string[] {
 /**
  * Extract category-specific sizes from product tags and variant titles
  */
-function extractSizes(
-  products: ShopifyProduct[],
-  category?: string,
-): string[] {
+function extractSizes(products: ShopifyProduct[], category?: string): string[] {
   if (
     category === "earrings" ||
     category === "pendants" ||
@@ -77,11 +81,16 @@ function extractSizes(
   }
 
   const sizes = new Set<string>();
+  const ringSizes = new Set<string>();
+  const braceletSizes = new Set<string>();
   const categoryLower = category?.toLowerCase();
+  const isShopPage = !category || categoryLower === "shop";
 
   products.forEach((p) => {
     (p.tags || []).forEach((tag) => {
-      const sizeMatch = tag.match(/(?:size|ring_size|chain_length|bracelet_.*?size)_(.+)/i);
+      const sizeMatch = tag.match(
+        /(?:size|ring_size|chain_length|bracelet_.*?size)_(.+)/i,
+      );
       if (!sizeMatch) return;
 
       let sizeValue = sizeMatch[1];
@@ -94,11 +103,16 @@ function extractSizes(
           const num = numMatch[1];
           if (RING_SIZES.includes(num)) {
             sizes.add(num);
+            if (isShopPage) ringSizes.add(num);
           }
         }
       }
 
-      if (categoryLower === "necklaces" || !category || categoryLower === "shop") {
+      if (
+        categoryLower === "necklaces" ||
+        !category ||
+        categoryLower === "shop"
+      ) {
         const numMatch = sizeValue.match(/^(\d+)/);
         if (numMatch) {
           const num = numMatch[1];
@@ -109,16 +123,24 @@ function extractSizes(
         }
       }
 
-      if (categoryLower === "bracelets" || !category || categoryLower === "shop") {
+      if (
+        categoryLower === "bracelets" ||
+        !category ||
+        categoryLower === "shop"
+      ) {
         if (/^\d+(\.\d+)?$/.test(sizeValue)) {
-          const normalized = sizeValue.includes('.') ? sizeValue : `${sizeValue}.0`;
+          const normalized = sizeValue.includes(".")
+            ? sizeValue
+            : `${sizeValue}.0`;
           sizes.add(normalized);
+          if (isShopPage) braceletSizes.add(normalized);
         } else {
           const normalized = BRACELET_SIZES.find(
-            (bs) => bs.toLowerCase() === sizeValue.toLowerCase()
+            (bs) => bs.toLowerCase() === sizeValue.toLowerCase(),
           );
           if (normalized) {
             sizes.add(normalized);
+            if (isShopPage) braceletSizes.add(normalized);
           }
         }
       }
@@ -129,7 +151,7 @@ function extractSizes(
       const variantTitle = variant.title;
       const variantLower = variantTitle.toLowerCase();
 
-      if (categoryLower === "rings" || (!category || categoryLower === "shop")) {
+      if (categoryLower === "rings" || !category || categoryLower === "shop") {
         const ringPatterns = [
           /\/\s*(\d+)\s*$/,
           /\/\s*(\d+)\s*,/,
@@ -142,13 +164,18 @@ function extractSizes(
             const sizeValue = match[1];
             if (RING_SIZES.includes(sizeValue)) {
               sizes.add(sizeValue);
+              if (isShopPage) ringSizes.add(sizeValue);
               break;
             }
           }
         }
       }
 
-      if (categoryLower === "necklaces" || (!category || categoryLower === "shop")) {
+      if (
+        categoryLower === "necklaces" ||
+        !category ||
+        categoryLower === "shop"
+      ) {
         const necklacePatterns = [
           /\/\s*(\d+)\s*["|"|"]?\s*$/,
           /\/\s*(\d+)\s*["|"|"]?\s*(?:inch|$)/i,
@@ -169,30 +196,52 @@ function extractSizes(
         }
       }
 
-      if (categoryLower === "bracelets" || (!category || categoryLower === "shop")) {
+      if (
+        categoryLower === "bracelets" ||
+        !category ||
+        categoryLower === "shop"
+      ) {
         const parts = variantTitle.split("/");
         if (parts.length > 1) {
           const lastPart = parts[parts.length - 1]?.trim();
-          const isMetalColor = lastPart && METAL_COLORS.some(color => lastPart.toLowerCase().includes(color));
+          const isMetalColor =
+            lastPart &&
+            METAL_COLORS.some((color) =>
+              lastPart.toLowerCase().includes(color),
+            );
 
           if (lastPart && lastPart.length > 0 && !isMetalColor) {
             let sizeValue = lastPart;
             const lowerValue = sizeValue.toLowerCase();
-            if (lowerValue === 's') sizeValue = 'Small';
-            else if (lowerValue === 'm') sizeValue = 'Medium';
-            else if (lowerValue === 'l') sizeValue = 'Large';
-            else if (BRACELET_SIZES.some(bs => bs.toLowerCase() === lowerValue)) {
-              sizeValue = sizeValue.charAt(0).toUpperCase() + sizeValue.slice(1);
+            if (lowerValue === "s") sizeValue = "Small";
+            else if (lowerValue === "m") sizeValue = "Medium";
+            else if (lowerValue === "l") sizeValue = "Large";
+            else if (
+              BRACELET_SIZES.some((bs) => bs.toLowerCase() === lowerValue)
+            ) {
+              sizeValue =
+                sizeValue.charAt(0).toUpperCase() + sizeValue.slice(1);
             }
 
             const numericMatch = sizeValue.match(/^(\d+)(?:\.\d+)?/);
-            if (numericMatch && !sizeValue.includes("anna") && !sizeValue.toLowerCase().includes("small") && !sizeValue.toLowerCase().includes("medium") && !sizeValue.toLowerCase().includes("large")) {
-              const normalized = sizeValue.includes('.') ? sizeValue.split(/\s/)[0] : `${numericMatch[1]}.0`;
+            if (
+              numericMatch &&
+              !sizeValue.includes("anna") &&
+              !sizeValue.toLowerCase().includes("small") &&
+              !sizeValue.toLowerCase().includes("medium") &&
+              !sizeValue.toLowerCase().includes("large")
+            ) {
+              const normalized = sizeValue.includes(".")
+                ? sizeValue.split(/\s/)[0]
+                : `${numericMatch[1]}.0`;
               sizes.add(normalized);
+              if (isShopPage) braceletSizes.add(normalized);
             } else if (BRACELET_SIZES.includes(sizeValue)) {
               sizes.add(sizeValue);
+              if (isShopPage) braceletSizes.add(sizeValue);
             } else {
               sizes.add(sizeValue);
+              if (isShopPage) braceletSizes.add(sizeValue);
             }
           }
         }
@@ -340,9 +389,10 @@ export function extractFilterOptions(
 
   // If no sizes found and category is specific, use defaults as fallback
   // This ensures the filter UI shows even if data extraction fails
-  const finalSizes = sizes.length === 0 && category && category !== "shop"
-    ? getDefaultSizesForCategory(category)
-    : sizes;
+  const finalSizes =
+    sizes.length === 0 && category && category !== "shop"
+      ? getDefaultSizesForCategory(category)
+      : sizes;
 
   return {
     shape: extractShapes(products),
