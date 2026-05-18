@@ -18,7 +18,7 @@ import {
   AddressFormSchema,
   type AddressFormInput,
 } from "@/lib/validation/address";
-import { getPinCodeData, INDIAN_STATES } from "@/lib/utils/pinCodeData";
+import { getPinCodeData, INDIAN_STATES } from "@/lib/pinCodeData";
 import type { AddressFormData } from "@/lib/stores/checkoutStore";
 import { ZodError } from "zod";
 
@@ -215,11 +215,11 @@ export function AddressForm({
           </Label>
           <Select
             value={formData.state}
-            onValueChange={(state) => setFormData({ ...formData, state })}
+            onValueChange={(state: string) => setFormData({ ...formData, state })}
           >
             <SelectTrigger
               id="state"
-              className={`w-full h-10! px-3 py-2 text-13px border rounded text-evol-dark-grey ${
+              className={`w-full h-10 px-3 py-2 text-13px border rounded text-evol-dark-grey ${
                 errors.state
                   ? "border-red-500 focus-visible:ring-red-500"
                   : "border-[#E5E5E5] focus-visible:ring-black/5"
