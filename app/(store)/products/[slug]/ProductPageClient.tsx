@@ -88,7 +88,6 @@ export function ProductPageClient({ shopifyProduct }: ProductPageClientProps) {
   const [showCustomizationRequest, setShowCustomizationRequest] =
     useState(false);
 
-
   const deliveryTimelineString = useMemo(() => {
     if (!shopifyProduct.metafields) {
       return "18-20";
@@ -268,21 +267,7 @@ export function ProductPageClient({ shopifyProduct }: ProductPageClientProps) {
     return Math.max(0, price);
   }, [matchingVariant, basePrice, selectedOptions, configuratorSections]);
 
-  // Check if there are any available variants for the current configuration
-  const isVariantAvailable = useMemo(() => {
-    if (!matchingVariant) {
-      // No variant matches the current selection
-      return false;
-    }
-    if (!isInStock) {
-      return false;
-    }
-    // Check if the matching variant is available for sale
-    if (!matchingVariant.availableForSale) {
-      return false;
-    }
-    return true;
-  }, [matchingVariant, isInStock]);
+  const isVariantAvailable = !!matchingVariant && isInStock;
 
   const handleAddToCart = async () => {
     if (!isVariantAvailable) {
