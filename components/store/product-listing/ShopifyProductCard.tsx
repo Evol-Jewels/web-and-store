@@ -110,40 +110,113 @@ export function ShopifyProductCard({
     e.preventDefault();
     e.stopPropagation();
 
-    if (!selectedVariant) {
+    // Check if product has inventory - PRIMARY check
+    const productTotalInventory = product.totalInventory ?? 0;
+    if (productTotalInventory === 0) {
       setShowUnavailableDialog(true);
       return;
     }
 
     // Only require selectedColorValue if product has color options
-    if (hasColorOptions && !selectedColorValue) return;
+    if (hasColorOptions && !selectedColorValue) {
+      return;
+    }
 
-    // Check if selected variant is available for sale
-    if (!selectedVariant.availableForSale) {
+    let variantToAdd: typeof selectedVariant | null = null;
+
+    if (hasColorOptions && selectedColorValue) {
+      const variantsWithSelectedColor = product.variants.filter((v) => {
+        const colorOption = v.selectedOptions?.find(
+          (opt) =>
+            opt.name.toLowerCase() === "color" ||
+            opt.name.toLowerCase() === "metal color",
+        );
+        return colorOption?.value === selectedColorValue;
+      });
+
+      if (variantsWithSelectedColor.length === 0) {
+        setShowUnavailableDialog(true);
+        return;
+      }
+
+      const availableVariant = variantsWithSelectedColor.find(
+        (v) => v.availableForSale,
+      );
+
+      if (!availableVariant) {
+        setShowUnavailableDialog(true);
+        return;
+      }
+
+      variantToAdd = availableVariant;
+    } else if (!hasColorOptions && product.variants.length > 0) {
+      // For products without color options (like gold beans), find first available variant
+      const availableVariant = product.variants.find((v) => v.availableForSale);
+
+      if (!availableVariant) {
+        // No variants available for any size/weight configuration
+        setShowUnavailableDialog(true);
+        return;
+      }
+      variantToAdd = availableVariant;
+    } else {
+      // No variant configuration found
       setShowUnavailableDialog(true);
       return;
     }
 
-    // For products without color options, check if there are ANY available variants
-    // This handles cases like gold beans where we might not have a specific size selected
-    if (!hasColorOptions) {
-      const hasAnyAvailableVariant = product.variants.some((v) => v.availableForSale);
-      if (!hasAnyAvailableVariant) {
-        setShowUnavailableDialog(true);
-        return;
+    // Final safety check - variant must be valid and available
+    if (!variantToAdd || !variantToAdd.availableForSale) {
+      setShowUnavailableDialog(true);
+      return;
+    }
+
+    // Extract size and purity from variant's selected options
+    let sizeValue: number | undefined;
+    let purityValue: string | undefined;
+
+    if (variantToAdd.selectedOptions) {
+      // Extract size (for rings and gold beans - weight in grams)
+      const sizeOption = variantToAdd.selectedOptions.find(
+        (opt) => opt.name.toLowerCase() === "size",
+      );
+      if (sizeOption?.value) {
+        const parsed = parseFloat(sizeOption.value);
+        if (!isNaN(parsed)) {
+          sizeValue = parsed;
+        }
+      }
+
+      // Extract purity (14KT, 18KT, etc.)
+      const purityOption = variantToAdd.selectedOptions.find(
+        (opt) =>
+          opt.name.toLowerCase() === "purity" ||
+          opt.name.toLowerCase() === "gold purity",
+      );
+      if (purityOption?.value) {
+        purityValue = purityOption.value;
       }
     }
 
-    addToCart({
+    const cartItem: any = {
       productId: product.id,
       name: product.title,
-      image: imageUrl || "",
-      price,
+      image: variantToAdd.image?.url || imageUrl || "",
+      price: parseInt(variantToAdd.price || "0"),
       color: selectedColorValue || "Standard",
       quantity: 1,
       deliveryDays,
-    });
+    };
 
+    // Add optional fields
+    if (purityValue) {
+      cartItem.purity = purityValue;
+    }
+    if (sizeValue !== undefined && sizeValue > 0) {
+      cartItem.size = sizeValue;
+    }
+
+    addToCart(cartItem);
     setCartOpen(true);
   };
 
