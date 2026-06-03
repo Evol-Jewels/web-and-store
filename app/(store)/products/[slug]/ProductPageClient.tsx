@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { motion } from "motion/react";
-import { Heart, Loader2 } from "lucide-react";
+import { Heart, Loader2, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ImageGallery } from "@/components/common/media/ImageGallery";
 import { RingSizeGuide } from "@/components/store/product-details/RingSizeGuide";
