@@ -2,6 +2,12 @@
 
 This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
 
+## Design Direction
+
+- Read and follow [`DESIGN.md`](./DESIGN.md) before creating or changing any customer-facing UI.
+- Treat `DESIGN.md` as the source of truth for the storefront's luxury aesthetic, visual language, composition, interaction, responsive behavior, and design-review criteria.
+- Keep every new page, section, and component consistent with that system. Extend the existing design language instead of introducing one-off colors, spacing, typography, shapes, or interaction patterns.
+
 ## Coding Guidelines
 
 - Keep code simple, with a focus on proper type definitions and best practices for production
