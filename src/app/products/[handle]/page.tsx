@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { ProductGallery } from "@/components/storefront/product-gallery";
+import { ProductDetails } from "@/components/storefront/product-details";
 import { ProductInformation } from "@/components/storefront/product-information";
 import {
   Breadcrumb,
@@ -82,13 +83,14 @@ export default async function ProductPage({
         </Breadcrumb>
       </div>
 
-      <div className="luxury-container pb-20 lg:pb-32">
+      <div className="luxury-container pb-16 lg:pb-24">
         <div className="lg:hidden">
           <ProductGallery
             images={product.media.slice(0, 1)}
+            preloadFirst
             productTitle={product.title}
           />
-          <div className="py-12">
+          <div className="py-10">
             <ProductInformation product={product} />
           </div>
           <ProductGallery
@@ -97,14 +99,17 @@ export default async function ProductPage({
           />
         </div>
 
-        <div className="hidden gap-16 lg:grid lg:grid-cols-[minmax(0,1.55fr)_minmax(22rem,0.75fr)] xl:gap-24">
+        <div className="hidden gap-12 lg:grid lg:grid-cols-[minmax(0,1.45fr)_minmax(22rem,0.85fr)] xl:gap-20">
           <ProductGallery
             images={product.media}
+            preloadFirst
             productTitle={product.title}
           />
           <ProductInformation product={product} />
         </div>
       </div>
+
+      <ProductDetails product={product} />
 
       <section className="border-t border-border bg-secondary">
         <div className="luxury-container grid gap-12 py-20 sm:py-28 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">

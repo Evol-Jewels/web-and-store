@@ -4,9 +4,11 @@ import type { ProductImage } from "@/types/product";
 
 export function ProductGallery({
   images,
+  preloadFirst = false,
   productTitle,
 }: {
   images: ProductImage[];
+  preloadFirst?: boolean;
   productTitle: string;
 }) {
   const visibleImages = images.slice(0, 8);
@@ -20,27 +22,19 @@ export function ProductGallery({
   }
 
   return (
-    <div className="grid gap-2 sm:grid-cols-2">
+    <div className="space-y-2">
       {visibleImages.map((image, index) => (
-        <div
-          key={image.id}
-          className={`relative overflow-hidden bg-product-surface ${
-            index === 0 ? "aspect-[4/5] sm:col-span-2 sm:aspect-[8/7]" : "aspect-[4/5]"
-          }`}
-        >
+        <figure key={image.id} className="overflow-hidden bg-product-surface">
           <Image
             src={image.url}
             alt={image.altText || productTitle}
-            fill
-            priority={index === 0}
-            sizes={
-              index === 0
-                ? "(max-width: 1024px) 100vw, 62vw"
-                : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 31vw"
-            }
-            className="object-contain p-[6%]"
+            width={image.width}
+            height={image.height}
+            preload={preloadFirst && index === 0}
+            sizes="(max-width: 1024px) 100vw, 58vw"
+            className="h-auto w-full"
           />
-        </div>
+        </figure>
       ))}
     </div>
   );

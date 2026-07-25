@@ -1,13 +1,47 @@
+"use client";
+
 import { Menu, Search, UserRound } from "lucide-react";
 import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
+
+import { cn } from "@/lib/utils";
 
 export function StorefrontHeader() {
+  const [navigationHidden, setNavigationHidden] = useState(false);
+  const previousScrollPosition = useRef(0);
+
+  useEffect(() => {
+    previousScrollPosition.current = window.scrollY;
+
+    function handleScroll() {
+      const currentScrollPosition = window.scrollY;
+      const scrollDifference =
+        currentScrollPosition - previousScrollPosition.current;
+
+      if (currentScrollPosition < 80) {
+        setNavigationHidden(false);
+      } else if (Math.abs(scrollDifference) > 6) {
+        setNavigationHidden(scrollDifference > 0);
+      }
+
+      previousScrollPosition.current = currentScrollPosition;
+    }
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
     <>
       <div className="bg-cinematic px-5 py-2.5 text-center text-[0.62rem] uppercase tracking-[0.18em] text-cinematic-foreground">
         Complimentary insured delivery across India
       </div>
-      <header className="sticky top-0 z-40 border-b border-border/70 bg-background/95 backdrop-blur">
+      <header
+        className={cn(
+          "sticky top-0 z-40 border-b border-border/70 bg-background/95 backdrop-blur transition-transform duration-300 ease-out",
+          navigationHidden && "-translate-y-full",
+        )}
+      >
         <div className="luxury-container grid h-20 grid-cols-[1fr_auto_1fr] items-center">
           <nav
             aria-label="Primary navigation"
