@@ -1,6 +1,7 @@
 "use client";
 
 import { Menu, Search, UserRound } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
@@ -68,9 +69,17 @@ export function StorefrontHeader() {
 
           <Link
             href="/"
-            className="font-heading text-2xl uppercase tracking-[0.3em]"
+            aria-label="Evol Jewels home"
+            className="transition-opacity hover:opacity-70"
           >
-            Evol
+            <Image
+              src="/evol-jewels-logo.png"
+              alt="Evol Jewels"
+              width={1262}
+              height={681}
+              className="h-auto w-24 sm:w-28"
+              preload
+            />
           </Link>
 
           <div className="flex items-center justify-self-end gap-1">

@@ -11,9 +11,11 @@ export function ProductCard({
   product: ProductCardData;
   priority?: boolean;
 }) {
-  const hasSecondView =
+  const secondaryImage =
     product.secondaryImage &&
-    product.secondaryImage.url !== product.featuredImage?.url;
+    product.secondaryImage.url !== product.featuredImage?.url
+      ? product.secondaryImage
+      : null;
 
   return (
     <article className="group min-w-0">
@@ -37,10 +39,10 @@ export function ProductCard({
             </div>
           )}
 
-          {hasSecondView ? (
+          {secondaryImage ? (
             <Image
-              src={product.secondaryImage.url}
-              alt={product.secondaryImage.altText}
+              src={secondaryImage.url}
+              alt={secondaryImage.altText}
               fill
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
               className="object-contain p-[8%] opacity-0 transition duration-700 ease-out group-hover:scale-[1.025] group-hover:opacity-100 motion-reduce:transition-none"
