@@ -1,8 +1,8 @@
 "use client";
 
 import {
+  Heart,
   IndianRupee,
-  MapPin,
   Menu,
   Phone,
   Search,
@@ -14,8 +14,10 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
 import { AccountSheet } from "@/components/storefront/account-sheet";
+import { CartSheet } from "@/components/storefront/cart-sheet";
 import { ContactSheet } from "@/components/storefront/contact-sheet";
 import { NavigationSheet } from "@/components/storefront/navigation-sheet";
+import { WishlistSheet } from "@/components/storefront/wishlist-sheet";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -100,14 +102,6 @@ export function StorefrontHeader() {
               IN
               <IndianRupee className="size-3" strokeWidth={1.25} />
             </span>
-            <Button
-              variant="ghost"
-              size="icon"
-              className={cn(utilityButtonClass, "hidden md:inline-flex")}
-              aria-label="Find a boutique"
-            >
-              <MapPin className="size-4" strokeWidth={1.25} />
-            </Button>
             <ContactSheet>
               <Button
                 variant="ghost"
@@ -118,6 +112,16 @@ export function StorefrontHeader() {
                 <Phone className="size-4" strokeWidth={1.25} />
               </Button>
             </ContactSheet>
+            <WishlistSheet>
+              <Button
+                variant="ghost"
+                size="icon"
+                className={utilityButtonClass}
+                aria-label="Open wishlist"
+              >
+                <Heart className="size-4" strokeWidth={1.25} />
+              </Button>
+            </WishlistSheet>
             <AccountSheet>
               <Button
                 variant="ghost"
@@ -128,14 +132,16 @@ export function StorefrontHeader() {
                 <UserRound className="size-4" strokeWidth={1.25} />
               </Button>
             </AccountSheet>
-            <Button
-              variant="ghost"
-              size="icon"
-              className={cn(utilityButtonClass, "hidden sm:inline-flex")}
-              aria-label="Shopping bag"
-            >
-              <ShoppingBag className="size-4" strokeWidth={1.25} />
-            </Button>
+            <CartSheet>
+              <Button
+                variant="ghost"
+                size="icon"
+                className={utilityButtonClass}
+                aria-label="Open shopping bag"
+              >
+                <ShoppingBag className="size-4" strokeWidth={1.25} />
+              </Button>
+            </CartSheet>
           </div>
         </div>
       </header>

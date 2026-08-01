@@ -127,6 +127,58 @@
   .product-description strong {
     @apply font-medium text-foreground;
   }
+
+  .link-underline {
+    @apply relative pb-1;
+  }
+
+  .link-underline::after {
+    content: "";
+    @apply absolute inset-x-0 bottom-0 h-px origin-right scale-x-0 bg-current transition-transform duration-500;
+  }
+
+  .link-underline:hover::after,
+  .link-underline:focus-visible::after {
+    @apply origin-left scale-x-100;
+  }
+}
+
+@keyframes home-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(1.25rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes home-image-reveal {
+  from {
+    opacity: 0;
+    transform: scale(1.04);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.home-reveal {
+  animation: home-reveal 900ms both cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.home-reveal-delay {
+  animation-delay: 120ms;
+}
+
+.home-reveal-delay-2 {
+  animation-delay: 240ms;
+}
+
+.home-hero-image {
+  animation: home-image-reveal 1400ms both cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @media (prefers-reduced-motion: reduce) {

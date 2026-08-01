@@ -1,71 +1,147 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
-import { ProductGrid } from "@/components/storefront/product-grid";
+import { BrandStory } from "@/components/storefront/home/brand-story";
+import { EditorialCollections } from "@/components/storefront/home/editorial-collections";
+import { HomeHero } from "@/components/storefront/home/home-hero";
+import { ProductCard } from "@/components/storefront/product-card";
+import { buttonVariants } from "@/components/ui/button";
 import { listFeaturedProducts } from "@/server/catalog/catalog.service";
+import type { ProductCardData } from "@/types/product";
 
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Fine Jewellery Collection | Evol",
+  title: "Lab-Grown Diamond Jewellery",
   description:
-    "Discover fine jewellery shaped by light, material and enduring emotion.",
+    "Discover Evol's certified lab-grown diamond jewellery, handcrafted in India in hallmarked gold.",
 };
+
+const promises = [
+  ["IGI/SGL", "Certified diamonds"],
+  ["14K & 18K", "Hallmarked gold"],
+  ["India", "Handcrafted locally"],
+  ["For life", "Complimentary annual care"],
+];
+
+const featuredTypes = ["rings", "necklaces", "earrings", "bracelets"];
+
+function selectFeaturedProducts(products: ProductCardData[]) {
+  const selected = featuredTypes
+    .map((type) =>
+      products.find((product) => product.productType?.toLowerCase() === type),
+    )
+    .filter((product): product is ProductCardData => Boolean(product));
+
+  return selected.length === featuredTypes.length
+    ? selected
+    : products.slice(0, 4);
+}
 
 export default async function Home() {
   const { products } = await listFeaturedProducts();
+  const featuredProducts = selectFeaturedProducts(products);
 
   return (
-    <main>
-      <section className="luxury-container py-20 text-center sm:py-28 lg:py-36">
-        <p className="eyebrow">The collection</p>
-        <h1 className="mx-auto mt-6 max-w-4xl font-heading text-6xl leading-[0.92] tracking-[-0.04em] sm:text-7xl lg:text-[6.75rem]">
-          Objects of permanence
-        </h1>
+    <main className="overflow-hidden">
+      <HomeHero />
+
+      <section className="luxury-container py-24 text-center sm:py-32 lg:py-40">
+        <p className="eyebrow home-reveal">The Evol point of view</p>
+        <h2 className="mx-auto mt-7 max-w-4xl font-heading text-5xl leading-[0.98] tracking-[-0.035em] sm:text-7xl lg:text-[5.75rem]">
+          Diamonds, evolved for the way we live now.
+        </h2>
         <p className="mx-auto mt-8 max-w-xl text-sm leading-7 text-muted-foreground sm:text-base">
-          Jewellery composed in precious material and light, created to hold
-          meaning beyond the moment.
+          Lab-grown diamonds with exceptional clarity, set in hallmarked gold
+          and shaped by hand in India. Modern heirlooms, made with intention.
         </p>
       </section>
 
-      <section id="collection" className="border-t border-border py-16 sm:py-20">
-        <div className="luxury-container">
-          <div className="mb-12 flex items-end justify-between gap-8 sm:mb-16">
-            <div>
-              <p className="eyebrow">New expressions</p>
-              <h2 className="mt-4 font-heading text-4xl tracking-[-0.025em] sm:text-5xl">
-                Discover the pieces
-              </h2>
-            </div>
-            <p className="hidden max-w-xs text-right text-sm leading-6 text-muted-foreground md:block">
-              Sculptural forms for everyday rituals and defining occasions.
-            </p>
-          </div>
+      <EditorialCollections />
 
-          {products.length ? (
-            <ProductGrid products={products} />
-          ) : (
-            <div className="border-y border-border py-24 text-center">
-              <p className="eyebrow">The collection is being prepared</p>
+      <section className="luxury-container py-24 sm:py-32" aria-labelledby="featured-title">
+        <div className="mb-12 flex items-end justify-between gap-8 sm:mb-16">
+          <div>
+            <p className="eyebrow">Our creations</p>
+            <h2
+              id="featured-title"
+              className="mt-4 font-heading text-4xl tracking-[-0.025em] sm:text-6xl"
+            >
+              Pieces to live in
+            </h2>
+          </div>
+          <Link
+            href="/products"
+            className="link-underline hidden text-[0.65rem] uppercase tracking-[0.2em] sm:inline-flex"
+          >
+            View all jewellery
+          </Link>
+        </div>
+
+        {featuredProducts.length ? (
+          <div className="grid grid-cols-2 gap-x-3 gap-y-14 sm:gap-x-6 lg:grid-cols-4 lg:gap-x-8">
+            {featuredProducts.map((product, index) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                priority={index < 2}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="border-y border-border py-24 text-center">
+            <p className="eyebrow">The collection is being prepared</p>
+          </div>
+        )}
+
+        <Link
+          href="/products"
+          className="mt-12 inline-flex text-[0.65rem] uppercase tracking-[0.2em] sm:hidden"
+        >
+          View all jewellery
+        </Link>
+      </section>
+
+      <BrandStory />
+
+      <section className="border-b border-border bg-background" aria-label="The Evol promise">
+        <div className="luxury-container grid grid-cols-2 border-x border-border lg:grid-cols-4">
+          {promises.map(([value, label], index) => (
+            <div
+              key={label}
+              className={`px-5 py-10 text-center sm:py-12 ${
+                index % 2 ? "border-l border-border" : ""
+              } ${index > 1 ? "border-t border-border lg:border-t-0" : ""} ${
+                index === 2 ? "lg:border-l" : ""
+              }`}
+            >
+              <p className="font-heading text-2xl tracking-[-0.02em] sm:text-3xl">{value}</p>
+              <p className="mt-2 text-[0.58rem] uppercase tracking-[0.18em] text-muted-foreground sm:text-[0.62rem]">
+                {label}
+              </p>
             </div>
-          )}
+          ))}
         </div>
       </section>
 
-      <section className="mt-16 bg-cinematic text-cinematic-foreground sm:mt-24">
-        <div className="luxury-container grid min-h-[32rem] place-items-center py-24 text-center">
-          <div className="max-w-2xl">
-            <p className="eyebrow text-cinematic-foreground/50">
-              Crafted with intention
-            </p>
-            <h2 className="mt-6 font-heading text-5xl leading-[0.98] tracking-[-0.03em] sm:text-7xl">
-              Form follows feeling
-            </h2>
-            <p className="mx-auto mt-7 max-w-lg text-sm leading-7 text-cinematic-foreground/60">
-              Each composition balances precision with emotion, allowing
-              material, movement and memory to find their form.
-            </p>
-          </div>
-        </div>
+      <section className="luxury-container py-24 text-center sm:py-32 lg:py-40">
+        <p className="eyebrow">Made personal</p>
+        <h2 className="mx-auto mt-6 max-w-3xl font-heading text-5xl leading-none tracking-[-0.035em] sm:text-7xl">
+          Your diamond, your way
+        </h2>
+        <p className="mx-auto mt-7 max-w-lg text-sm leading-7 text-muted-foreground">
+          Meet with an Evol diamond specialist to choose a stone, refine a
+          design, or create a piece entirely your own.
+        </p>
+        <Link
+          href="/products"
+          className={buttonVariants({
+            variant: "luxury",
+            className: "mt-9 h-12 rounded-none px-8 text-[0.62rem]",
+          })}
+        >
+          Begin your consultation
+        </Link>
       </section>
     </main>
   );

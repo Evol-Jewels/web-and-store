@@ -1,8 +1,19 @@
+"use client";
+
+import { Heart } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
-import { formatPriceRange } from "@/lib/format";
+import { useStorefront } from "@/components/storefront/storefront-provider";
+import { Button } from "@/components/ui/button";
+import { formatMoney } from "@/lib/format";
 import type { ProductCardData } from "@/types/product";
+
+function formatProductTitle(title: string) {
+  return title
+    .toLocaleLowerCase("en-IN")
+    .replace(/\b\p{L}/gu, (letter) => letter.toLocaleUpperCase("en-IN"));
+}
 
 export function ProductCard({
   product,
@@ -11,64 +22,64 @@ export function ProductCard({
   product: ProductCardData;
   priority?: boolean;
 }) {
-  const secondaryImage =
-    product.secondaryImage &&
-    product.secondaryImage.url !== product.featuredImage?.url
-      ? product.secondaryImage
-      : null;
+  const { isWishlisted, toggleWishlist } = useStorefront();
+  const saved = isWishlisted(product.id);
 
   return (
     <article className="group min-w-0">
+      <div className="relative">
+        <Link
+          href={`/products/${product.handle}`}
+          className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-4 focus-visible:ring-offset-background"
+        >
+          <div className="relative aspect-[4/5] overflow-hidden bg-product-surface">
+            {product.featuredImage ? (
+              <Image
+                src={product.featuredImage.url}
+                alt={product.featuredImage.altText}
+                fill
+                priority={priority}
+                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                className="object-contain p-[8%] transition-transform duration-700 ease-out group-hover:scale-[1.025] motion-reduce:transition-none"
+              />
+            ) : (
+              <div className="absolute inset-0 grid place-items-center text-xs uppercase tracking-[0.24em] text-muted-foreground">
+                Evol
+              </div>
+            )}
+          </div>
+        </Link>
+
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="absolute top-3 right-3 z-10 rounded-none bg-background/75 hover:bg-background"
+          aria-label={
+            saved
+              ? `Remove ${product.title} from wishlist`
+              : `Add ${product.title} to wishlist`
+          }
+          aria-pressed={saved}
+          onClick={() => toggleWishlist(product)}
+        >
+          <Heart
+            className={saved ? "fill-current" : undefined}
+            strokeWidth={1.25}
+          />
+        </Button>
+      </div>
+
       <Link
         href={`/products/${product.handle}`}
-        className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-4 focus-visible:ring-offset-background"
+        className="block py-4 sm:py-5"
       >
-        <div className="relative aspect-[4/5] overflow-hidden bg-product-surface">
-          {product.featuredImage ? (
-            <Image
-              src={product.featuredImage.url}
-              alt={product.featuredImage.altText}
-              fill
-              priority={priority}
-              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-              className="object-contain p-[8%] transition duration-700 ease-out group-hover:scale-[1.025] group-hover:opacity-0 motion-reduce:transition-none"
-            />
-          ) : (
-            <div className="absolute inset-0 grid place-items-center text-xs uppercase tracking-[0.24em] text-muted-foreground">
-              Evol
-            </div>
-          )}
-
-          {secondaryImage ? (
-            <Image
-              src={secondaryImage.url}
-              alt={secondaryImage.altText}
-              fill
-              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-              className="object-contain p-[8%] opacity-0 transition duration-700 ease-out group-hover:scale-[1.025] group-hover:opacity-100 motion-reduce:transition-none"
-            />
-          ) : null}
-
-          {!product.availableForSale ? (
-            <span className="absolute left-4 top-4 bg-background/90 px-3 py-2 text-[0.62rem] uppercase tracking-[0.18em]">
-              Enquire
-            </span>
-          ) : null}
-        </div>
-
-        <div className="border-b border-border py-4 sm:py-5">
-          <div className="flex items-start justify-between gap-3">
-            <p className="min-w-0 truncate text-[0.62rem] uppercase tracking-[0.18em] text-muted-foreground sm:text-[0.66rem] sm:tracking-[0.2em]">
-              {product.productType || product.vendor || "Fine jewellery"}
-            </p>
-            <p className="shrink-0 whitespace-nowrap text-[0.68rem] sm:text-sm">
-              {formatPriceRange(product.priceRange)}
-            </p>
-          </div>
-          <h2 className="mt-2 line-clamp-2 font-heading text-lg leading-tight tracking-[-0.01em] sm:text-xl">
-            {product.title}
-          </h2>
-        </div>
+        <h2 className="text-sm font-normal leading-5 sm:text-base sm:leading-6">
+          {formatProductTitle(product.title)}
+        </h2>
+        <p className="mt-1.5 text-xs text-muted-foreground sm:text-sm">
+          From {formatMoney(product.priceRange.min)}
+        </p>
       </Link>
     </article>
   );
