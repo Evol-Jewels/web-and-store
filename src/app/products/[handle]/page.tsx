@@ -2,9 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { ProductGallery } from "@/components/storefront/product-gallery";
 import { ProductDetails } from "@/components/storefront/product-details";
-import { ProductInformation } from "@/components/storefront/product-information";
+import { ProductPurchaseExperience } from "@/components/storefront/product-purchase-experience";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -84,29 +83,7 @@ export default async function ProductPage({
       </div>
 
       <div className="luxury-container pb-16 lg:pb-24">
-        <div className="lg:hidden">
-          <ProductGallery
-            images={product.media.slice(0, 1)}
-            preloadFirst
-            productTitle={product.title}
-          />
-          <div className="py-10">
-            <ProductInformation product={product} />
-          </div>
-          <ProductGallery
-            images={product.media.slice(1)}
-            productTitle={product.title}
-          />
-        </div>
-
-        <div className="hidden gap-12 lg:grid lg:grid-cols-[minmax(0,1.45fr)_minmax(22rem,0.85fr)] xl:gap-20">
-          <ProductGallery
-            images={product.media}
-            preloadFirst
-            productTitle={product.title}
-          />
-          <ProductInformation product={product} />
-        </div>
+        <ProductPurchaseExperience product={product} />
       </div>
 
       <ProductDetails product={product} />

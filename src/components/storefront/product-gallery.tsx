@@ -11,9 +11,7 @@ export function ProductGallery({
   preloadFirst?: boolean;
   productTitle: string;
 }) {
-  const visibleImages = images.slice(0, 8);
-
-  if (visibleImages.length === 0) {
+  if (images.length === 0) {
     return (
       <div className="grid aspect-[4/5] place-items-center bg-product-surface text-xs uppercase tracking-[0.24em] text-muted-foreground">
         Evol
@@ -23,7 +21,7 @@ export function ProductGallery({
 
   return (
     <div className="space-y-2">
-      {visibleImages.map((image, index) => (
+      {images.map((image, index) => (
         <figure key={image.id} className="overflow-hidden bg-product-surface">
           <Image
             src={image.url}

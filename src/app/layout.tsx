@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 
 import { StorefrontFooter } from "@/components/storefront/storefront-footer";
 import { StorefrontHeader } from "@/components/storefront/storefront-header";
+import { StorefrontProvider } from "@/components/storefront/storefront-provider";
 
 import "./globals.css";
 
@@ -36,9 +37,11 @@ export default function RootLayout({
       className={`${manrope.variable} ${cormorant.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
-        <StorefrontHeader />
-        {children}
-        <StorefrontFooter />
+        <StorefrontProvider>
+          <StorefrontHeader />
+          {children}
+          <StorefrontFooter />
+        </StorefrontProvider>
       </body>
     </html>
   );

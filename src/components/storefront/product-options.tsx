@@ -1,18 +1,9 @@
-"use client";
-
-import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { formatMoney } from "@/lib/format";
 import type { ProductOption, ProductVariant } from "@/types/product";
-
-function selectionsFromVariant(variant: ProductVariant | undefined) {
-  return Object.fromEntries(
-    variant?.selectedOptions.map(({ name, value }) => [name, value]) ?? [],
-  );
-}
 
 function matchesSelections(
   variant: ProductVariant,
@@ -41,16 +32,15 @@ export function ProductOptions({
   className,
   options,
   variants,
+  selections,
+  onSelectOption,
 }: {
   className?: string;
   options: ProductOption[];
   variants: ProductVariant[];
+  selections: Record<string, string>;
+  onSelectOption: (name: string, value: string) => void;
 }) {
-  const firstVariant =
-    variants.find((variant) => variant.availableForSale) ?? variants[0];
-  const [selections, setSelections] = useState<Record<string, string>>(() =>
-    selectionsFromVariant(firstVariant),
-  );
   const selectedVariant = variants.find((variant) =>
     matchesSelections(variant, selections),
   );
@@ -60,10 +50,6 @@ export function ProductOptions({
       option.name.toLowerCase() !== "title" ||
       option.values.some((value) => value !== "Default Title"),
   );
-
-  function selectOption(name: string, value: string) {
-    setSelections((current) => ({ ...current, [name]: value }));
-  }
 
   return (
     <div className={cn("space-y-6", className)}>
@@ -93,7 +79,7 @@ export function ProductOptions({
                       type="button"
                       aria-label={value}
                       aria-pressed={selected}
-                      onClick={() => selectOption(option.name, value)}
+                      onClick={() => onSelectOption(option.name, value)}
                       className="grid size-11 place-items-center rounded-full border border-transparent transition-colors hover:border-foreground/50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring aria-pressed:border-foreground"
                     >
                       <span
@@ -123,7 +109,7 @@ export function ProductOptions({
                 <select
                   value={selections[option.name]}
                   onChange={(event) =>
-                    selectOption(option.name, event.target.value)
+                    onSelectOption(option.name, event.target.value)
                   }
                   className="h-13 w-full appearance-none rounded-none border border-border bg-background px-4 pr-12 text-sm outline-none transition-colors hover:border-foreground focus-visible:border-foreground focus-visible:ring-2 focus-visible:ring-ring/30"
                 >
@@ -155,7 +141,7 @@ export function ProductOptions({
                     key={value}
                     type="button"
                     aria-pressed={selected}
-                    onClick={() => selectOption(option.name, value)}
+                    onClick={() => onSelectOption(option.name, value)}
                     className="min-h-11 min-w-14 border border-border px-4 py-2.5 text-xs transition-colors hover:border-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring aria-pressed:border-foreground aria-pressed:bg-foreground aria-pressed:text-background"
                   >
                     {value}
