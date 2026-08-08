@@ -1,8 +1,11 @@
 import "server-only";
 
+import type { CollectionCardData, CollectionDetail } from "@/types/collection";
 import type { ProductCardData } from "@/types/product";
 
 import {
+  findCollectionByHandle,
+  findCollections,
   findProducts,
   findProductByHandle,
 } from "./catalog.repository";
@@ -34,4 +37,25 @@ export async function listAllProducts() {
 
 export async function getProductDetails(handle: string) {
   return findProductByHandle(handle);
+}
+
+export async function listFeaturedCollections(
+  limit = 12,
+): Promise<CollectionCardData[]> {
+  try {
+    const { collections } = await findCollections(limit);
+    return collections;
+  } catch {
+    return [];
+  }
+}
+
+export async function getCollectionDetails(
+  handle: string,
+): Promise<CollectionDetail | null> {
+  try {
+    return await findCollectionByHandle(handle);
+  } catch {
+    return null;
+  }
 }

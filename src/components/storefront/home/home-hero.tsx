@@ -2,45 +2,56 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 export function HomeHero() {
   return (
-    <section className="bg-cinematic text-cinematic-foreground">
-      <div className="grid min-h-[42rem] lg:min-h-[calc(100svh-7.5rem)] lg:grid-cols-[0.43fr_0.57fr]">
-        <div className="relative z-10 flex items-center px-6 py-20 sm:px-12 lg:px-16 xl:px-24">
-          <div className="max-w-xl">
-            <p className="home-reveal text-3xl font-light leading-none tracking-[-0.035em] sm:text-5xl lg:text-6xl">
-              At the heart of
-            </p>
-            <h1 className="home-reveal home-reveal-delay mt-1 font-heading text-[5.25rem] leading-[0.8] tracking-[-0.055em] sm:text-[8rem] lg:text-[9.5rem] xl:text-[11rem]">
-              Jewellery
-            </h1>
-            <p className="home-reveal home-reveal-delay-2 mt-9 max-w-md text-sm leading-7 text-cinematic-foreground/65 sm:text-base">
-              Certified lab-grown diamonds, shaped into modern heirlooms and
-              handcrafted in India.
-            </p>
+    <section
+      data-hero
+      className="relative isolate flex min-h-svh items-end overflow-hidden bg-cinematic text-white sm:items-center"
+    >
+      <Image
+        src="/images/home/hero-campaign.jpg"
+        alt="A woman wearing an Evol lab-grown diamond tennis necklace and earrings"
+        fill
+        priority
+        sizes="100vw"
+        className="home-hero-image object-cover object-[72%_center]"
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-foreground/75 via-foreground/10 to-foreground/20 sm:bg-gradient-to-r sm:from-foreground/70 sm:via-foreground/15 sm:to-transparent" />
+
+      <div className="luxury-container relative pb-20 pt-28 sm:py-0">
+        <div className="max-w-xl">
+          <p className="home-reveal text-[0.64rem] font-medium uppercase tracking-[0.28em] text-white/70">
+            Certified lab-grown diamonds
+          </p>
+          <h1 className="home-reveal home-reveal-delay mt-6 font-heading text-6xl leading-[0.92] tracking-[-0.04em] sm:text-7xl lg:text-[7.5rem]">
+            A light of
+            <br />
+            your own.
+          </h1>
+          <p className="home-reveal home-reveal-delay-2 mt-8 max-w-md text-sm leading-7 text-white/75 sm:text-base">
+            Lab-grown diamonds of exceptional clarity, set in hallmarked gold
+            and shaped by hand in India. Modern heirlooms, made with intention.
+          </p>
+          <div className="home-reveal home-reveal-delay-2 mt-10 flex flex-wrap items-center gap-x-8 gap-y-4">
             <Link
               href="/products"
-              className={buttonVariants({
-                variant: "outline",
-                className:
-                  "home-reveal home-reveal-delay-2 mt-9 h-12 rounded-none border-cinematic-foreground bg-cinematic-foreground px-8 text-[0.64rem] uppercase tracking-[0.18em] text-cinematic hover:bg-cinematic-foreground/85 hover:text-cinematic",
-              })}
+              className={cn(
+                buttonVariants(),
+                "h-12 rounded-none bg-white px-8 text-[0.64rem] uppercase tracking-[0.18em] text-foreground hover:bg-white/85",
+              )}
             >
               Explore the collection
             </Link>
-          </div>
-        </div>
 
-        <div className="relative min-h-[28rem] overflow-hidden sm:min-h-[36rem] lg:min-h-[inherit]">
-          <Image
-            src="/images/home/hero-01.webp"
-            alt="A woman wearing Evol diamond necklaces and rings"
-            fill
-            priority
-            sizes="(max-width: 1024px) 100vw, 57vw"
-            className="home-hero-image object-cover object-right"
-          />
+            <Link
+              href="/products"
+              className="link-underline text-[0.64rem] uppercase tracking-[0.18em] text-white/85"
+            >
+              Book an appointment
+            </Link>
+          </div>
         </div>
       </div>
     </section>
