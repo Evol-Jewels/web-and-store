@@ -5,6 +5,7 @@ import Link from "next/link";
 const collections = [
   {
     name: "Necklaces",
+    slug: "necklaces",
     image: "/images/home/rings.jpg",
     alt: "Diamond necklaces layered at the neckline",
     className:
@@ -13,6 +14,7 @@ const collections = [
   },
   {
     name: "Bracelets",
+    slug: "bracelets",
     image: "/images/home/bracelets.jpg",
     alt: "Diamond tennis bracelet worn on the wrist",
     className:
@@ -21,6 +23,7 @@ const collections = [
   },
   {
     name: "Rings",
+    slug: "rings",
     image: "/images/home/earrings.jpg",
     alt: "Diamond rings styled on two hands",
     className:
@@ -29,6 +32,7 @@ const collections = [
   },
   {
     name: "Earrings",
+    slug: "earrings",
     image: "/images/home/necklaces.jpg",
     alt: "Diamond earrings worn in profile",
     className:
@@ -37,6 +41,7 @@ const collections = [
   },
   {
     name: "Pendants",
+    slug: "pendants",
     image: "/images/home/pendants.jpg",
     alt: "Two oval diamond pendants layered over a black jacket",
     className:
@@ -63,7 +68,7 @@ export function EditorialCollections() {
         {collections.map((collection) => (
           <Link
             key={collection.name}
-            href="/products"
+            href={`/products?category=${collection.slug}`}
             className={`group relative overflow-hidden bg-product-surface ${collection.className}`}
           >
             <Image
