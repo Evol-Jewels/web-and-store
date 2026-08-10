@@ -1,5 +1,9 @@
 import "server-only";
 
+import type {
+  CollectionConnection,
+  CollectionDetail,
+} from "@/types/collection";
 import type { ProductConnection, ProductDetail } from "@/types/product";
 
 const backendApiUrl =
@@ -40,5 +44,20 @@ export function getProducts(first = 24, after?: string) {
 export function getProduct(handle: string) {
   return requestCatalog<ProductDetail>(
     `/api/v1/storefront/products/${encodeURIComponent(handle)}`,
+  );
+}
+
+export function getCollections(first = 24, after?: string) {
+  const searchParams = new URLSearchParams({ first: String(first) });
+  if (after) searchParams.set("after", after);
+
+  return requestCatalog<CollectionConnection>(
+    `/api/v1/storefront/collections?${searchParams.toString()}`,
+  );
+}
+
+export function getCollection(handle: string) {
+  return requestCatalog<CollectionDetail>(
+    `/api/v1/storefront/collections/${encodeURIComponent(handle)}`,
   );
 }

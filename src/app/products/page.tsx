@@ -9,7 +9,10 @@ import {
   productMatchesCategory,
 } from "@/lib/catalog";
 import { cn } from "@/lib/utils";
-import { listAllProducts } from "@/server/catalog/catalog.service";
+import {
+  getCollectionDetails,
+  listAllProducts,
+} from "@/server/catalog/catalog.service";
 
 export const dynamic = "force-dynamic";
 
@@ -22,25 +25,41 @@ export const metadata: Metadata = {
 export default async function ProductsPage({
   searchParams,
 }: PageProps<"/products">) {
-  const { category: categoryParam } = await searchParams;
+  const { category: categoryParam, collection: collectionParam } =
+    await searchParams;
+  const collectionHandle =
+    typeof collectionParam === "string" ? collectionParam : undefined;
+  const collection = collectionHandle
+    ? await getCollectionDetails(collectionHandle)
+    : null;
   const category = findProductCategory(
     typeof categoryParam === "string" ? categoryParam : undefined,
   );
-  const allProducts = await listAllProducts();
-  const products = category
-    ? allProducts.filter((product) =>
-        productMatchesCategory(product, category.slug),
-      )
-    : allProducts;
-  const heroImage = category?.image ?? "/images/home/hero-01.webp";
-  const title = category?.label ?? "All jewellery";
+
+  const allProducts = collection ? [] : await listAllProducts();
+  const products = collection
+    ? collection.products
+    : category
+      ? allProducts.filter((product) =>
+          productMatchesCategory(product, category.slug),
+        )
+      : allProducts;
+
+  const heroImage =
+    collection?.image?.url ??
+    category?.image ??
+    "/images/home/editorial-portrait.jpg";
+  const title = collection?.title ?? category?.label ?? "All jewellery";
   const description =
     category?.description ??
     "Discover every Evol creation, shaped in lab-grown diamonds and hallmarked gold.";
 
   return (
     <main>
-      <section className="relative isolate min-h-[19rem] overflow-hidden bg-cinematic text-cinematic-foreground sm:min-h-[24rem]">
+      <section
+        data-hero
+        className="relative isolate min-h-[23rem] overflow-hidden bg-cinematic text-cinematic-foreground sm:min-h-[27rem]"
+      >
         <Image
           src={heroImage}
           alt=""
@@ -50,7 +69,7 @@ export default async function ProductsPage({
           className="object-cover opacity-60"
         />
         <div className="absolute inset-0 bg-foreground/45" />
-        <div className="luxury-container relative flex min-h-[19rem] flex-col items-center justify-center py-16 text-center sm:min-h-[24rem]">
+        <div className="luxury-container relative flex min-h-[23rem] flex-col items-center justify-center px-5 pb-16 pt-28 text-center sm:min-h-[27rem]">
           <p className="text-[0.64rem] font-medium uppercase tracking-[0.22em] text-cinematic-foreground/75">
             The collection
           </p>
@@ -70,10 +89,11 @@ export default async function ProductsPage({
         <div className="luxury-container flex gap-8 overflow-x-auto py-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <Link
             href="/products"
-            aria-current={!category ? "page" : undefined}
+            aria-current={!category && !collection ? "page" : undefined}
             className={cn(
               "relative flex min-h-14 shrink-0 items-center text-[0.64rem] uppercase tracking-[0.18em] text-muted-foreground transition-colors hover:text-foreground",
               !category &&
+                !collection &&
                 "text-foreground after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-foreground",
             )}
           >

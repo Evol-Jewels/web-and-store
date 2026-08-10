@@ -1,21 +1,25 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { Reveal } from "@/components/storefront/reveal";
+
 export function BrandStory() {
   return (
     <section className="bg-secondary" aria-labelledby="story-title">
       <div className="grid lg:grid-cols-2">
         <div className="relative min-h-[34rem] overflow-hidden sm:min-h-[44rem] lg:min-h-[50rem]">
-          <Image
-            src="/images/home/pendants.jpg"
-            alt="Diamond pendant worn close to the skin"
-            fill
-            sizes="(max-width: 1024px) 100vw, 50vw"
-            className="object-cover object-center"
-          />
+          <Reveal image className="absolute inset-0">
+            <Image
+              src="/images/home/editorial-portrait.jpg"
+              alt="A woman wearing an Evol lab-grown diamond halo earring in profile"
+              fill
+              sizes="(max-width: 1024px) 100vw, 50vw"
+              className="object-cover object-center"
+            />
+          </Reveal>
         </div>
         <div className="flex items-center px-5 py-20 sm:px-12 sm:py-28 lg:px-20 xl:px-28">
-          <div className="max-w-xl">
+          <Reveal className="max-w-xl">
             <p className="eyebrow">Born from possibility</p>
             <h2
               id="story-title"
@@ -39,7 +43,7 @@ export function BrandStory() {
             >
               Discover our diamonds
             </Link>
-          </div>
+          </Reveal>
         </div>
       </div>
     </section>

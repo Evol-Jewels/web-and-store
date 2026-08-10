@@ -59,7 +59,7 @@ export default async function ProductPage({
   const product = await loadProduct(handle);
 
   return (
-    <main>
+    <main className="pt-28 sm:pt-32">
       <div className="luxury-container py-6 sm:py-8">
         <Breadcrumb>
           <BreadcrumbList className="text-[0.64rem] uppercase tracking-[0.16em]">
@@ -82,7 +82,7 @@ export default async function ProductPage({
         </Breadcrumb>
       </div>
 
-      <div className="luxury-container pb-16 lg:pb-24">
+      <div data-immersive className="luxury-container pb-16 lg:pb-24">
         <ProductPurchaseExperience product={product} />
       </div>
 
