@@ -28,9 +28,12 @@ async function requestCatalog<T>(path: string): Promise<T> {
   return response.json() as Promise<T>;
 }
 
-export function getProducts(first = 24) {
+export function getProducts(first = 24, after?: string) {
+  const searchParams = new URLSearchParams({ first: String(first) });
+  if (after) searchParams.set("after", after);
+
   return requestCatalog<ProductConnection>(
-    `/api/v1/storefront/products?first=${first}`,
+    `/api/v1/storefront/products?${searchParams.toString()}`,
   );
 }
 

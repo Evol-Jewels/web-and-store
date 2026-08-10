@@ -5,6 +5,7 @@ import { useState } from "react";
 import type {
   ProductDetail,
   ProductImage,
+  ProductMedia,
   ProductOption,
   ProductVariant,
 } from "@/types/product";
@@ -13,6 +14,10 @@ import { ProductGallery } from "./product-gallery";
 import { ProductInformation } from "./product-information";
 
 const IMAGES_PER_COLOUR = 4;
+
+function isProductImage(media: ProductMedia): media is ProductImage {
+  return !("mediaContentType" in media);
+}
 
 function isColourOption(option: ProductOption) {
   const name = option.name.toLowerCase();
@@ -58,7 +63,7 @@ export function ProductPurchaseExperience({
     selectionsFromVariant(firstVariant),
   );
   const images = imagesForSelections(
-    product.media,
+    product.media.filter(isProductImage),
     product.options,
     selections,
   );

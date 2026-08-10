@@ -11,6 +11,22 @@ export type ProductImage = {
   height: number;
 };
 
+export type ProductVideo = {
+  id: string;
+  mediaContentType: "VIDEO";
+  altText: string;
+  previewImage: ProductImage | null;
+  sources: Array<{
+    url: string;
+    mimeType: string;
+    format: string;
+    width: number;
+    height: number;
+  }>;
+};
+
+export type ProductMedia = ProductImage | ProductVideo;
+
 export type ProductCardData = {
   id: string;
   handle: string;
@@ -51,7 +67,7 @@ export type ProductDetail = ProductCardData & {
     title: string | null;
     description: string | null;
   };
-  media: ProductImage[];
+  media: ProductMedia[];
   options: ProductOption[];
   variants: ProductVariant[];
   collections: Array<{
