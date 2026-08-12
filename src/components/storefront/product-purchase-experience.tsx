@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+import { availableInventoryForVariant } from "@/lib/inventory-availability";
+
 import type {
   ProductDetail,
   ProductImage,
@@ -57,6 +59,11 @@ export function ProductPurchaseExperience({
   product: ProductDetail;
 }) {
   const firstVariant =
+    product.variants.find(
+      (variant) =>
+        availableInventoryForVariant(variant, product.inventoryProducts).length >
+        0,
+    ) ??
     product.variants.find((variant) => variant.availableForSale) ??
     product.variants[0];
   const [selections, setSelections] = useState<Record<string, string>>(() =>

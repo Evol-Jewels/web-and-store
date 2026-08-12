@@ -21,6 +21,7 @@ export function ProductInformation({
         className="mt-6"
         options={product.options}
         variants={product.variants}
+        inventoryProducts={product.inventoryProducts}
         selections={selections}
         onSelectOption={onSelectOption}
       />

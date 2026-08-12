@@ -3,16 +3,15 @@ import { ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { formatMoney } from "@/lib/format";
-import type { ProductOption, ProductVariant } from "@/types/product";
-
-function matchesSelections(
-  variant: ProductVariant,
-  selections: Record<string, string>,
-) {
-  return variant.selectedOptions.every(
-    ({ name, value }) => selections[name] === value,
-  );
-}
+import {
+  availableInventoryForVariant,
+  variantMatchesSelections,
+} from "@/lib/inventory-availability";
+import type {
+  InventoryProduct,
+  ProductOption,
+  ProductVariant,
+} from "@/types/product";
 
 function materialSwatchClass(value: string) {
   const material = value.toLowerCase();
@@ -32,19 +31,25 @@ export function ProductOptions({
   className,
   options,
   variants,
+  inventoryProducts,
   selections,
   onSelectOption,
 }: {
   className?: string;
   options: ProductOption[];
   variants: ProductVariant[];
+  inventoryProducts: InventoryProduct[];
   selections: Record<string, string>;
   onSelectOption: (name: string, value: string) => void;
 }) {
   const selectedVariant = variants.find((variant) =>
-    matchesSelections(variant, selections),
+    variantMatchesSelections(variant, selections),
   );
   const available = selectedVariant?.availableForSale ?? false;
+  const availableInventory = selectedVariant
+    ? availableInventoryForVariant(selectedVariant, inventoryProducts)
+    : [];
+  const readyToShip = availableInventory.length > 0;
   const visibleOptions = options.filter(
     (option) =>
       option.name.toLowerCase() !== "title" ||
@@ -152,6 +157,30 @@ export function ProductOptions({
           </fieldset>
         );
       })}
+
+      {selectedVariant ? (
+        <div className="border-y border-border py-4">
+          <p className="text-[0.66rem] font-medium uppercase tracking-[0.18em]">
+            {readyToShip ? "Ready to ship" : "Made to order"}
+          </p>
+          <p className="mt-1.5 text-sm leading-6 text-muted-foreground">
+            {readyToShip
+              ? "Delivery in 2–3 days"
+              : "Delivery in 17–20 business days"}
+          </p>
+          {availableInventory.map((product) => (
+            <p
+              key={product.productCode}
+              className="mt-2 text-xs leading-5 text-muted-foreground"
+            >
+              Available piece: {product.productCode}
+              {product.location
+                ? ` · ${product.location.name}, ${product.location.city}`
+                : ""}
+            </p>
+          ))}
+        </div>
+      ) : null}
 
       <div>
         <Button
