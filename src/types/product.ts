@@ -61,6 +61,20 @@ export type ProductVariant = {
   }>;
 };
 
+export type InventoryProduct = {
+  productCode: string;
+  status: "AVAILABLE" | "NOT_AVAILABLE";
+  purity: number | null;
+  color: "YELLOW" | "ROSE" | "WHITE" | "OTHERS";
+  size: number | null;
+  location: {
+    id: string;
+    name: string;
+    city: string;
+    type: "STORE" | "WAREHOUSE";
+  } | null;
+};
+
 export type ProductDetail = ProductCardData & {
   descriptionHtml: string;
   seo: {
@@ -70,6 +84,7 @@ export type ProductDetail = ProductCardData & {
   media: ProductMedia[];
   options: ProductOption[];
   variants: ProductVariant[];
+  inventoryProducts: InventoryProduct[];
   collections: Array<{
     id: string;
     title: string;

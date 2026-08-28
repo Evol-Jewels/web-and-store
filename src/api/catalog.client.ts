@@ -6,6 +6,10 @@ import type {
 } from "@/types/collection";
 import type { ProductConnection, ProductDetail } from "@/types/product";
 
+type ProductDetailResponse = Omit<ProductDetail, "inventoryProducts"> & {
+  inventoryProducts?: ProductDetail["inventoryProducts"] | null;
+};
+
 const backendApiUrl =
   process.env.BACKEND_API_URL?.replace(/\/$/, "") ?? "http://localhost:3001";
 
@@ -41,10 +45,17 @@ export function getProducts(first = 24, after?: string) {
   );
 }
 
-export function getProduct(handle: string) {
-  return requestCatalog<ProductDetail>(
+export async function getProduct(handle: string): Promise<ProductDetail> {
+  const product = await requestCatalog<ProductDetailResponse>(
     `/api/v1/storefront/products/${encodeURIComponent(handle)}`,
   );
+
+  return {
+    ...product,
+    inventoryProducts: Array.isArray(product.inventoryProducts)
+      ? product.inventoryProducts
+      : [],
+  };
 }
 
 export function getCollections(first = 24, after?: string) {
