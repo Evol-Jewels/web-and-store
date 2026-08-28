@@ -43,12 +43,18 @@ export function variantMatchesSelections(
 
 export function availableInventoryForVariant(
   variant: ProductVariant,
-  inventoryProducts: InventoryProduct[],
+  inventoryProducts: InventoryProduct[] | null | undefined,
 ) {
   const purity = variantPurity(variant);
   const color = variantColor(variant);
 
-  if (purity === null || color === null) return [];
+  if (
+    purity === null ||
+    color === null ||
+    !Array.isArray(inventoryProducts)
+  ) {
+    return [];
+  }
 
   return inventoryProducts.filter(
     (product) =>
