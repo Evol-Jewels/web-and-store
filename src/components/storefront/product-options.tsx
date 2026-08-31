@@ -13,6 +13,8 @@ import type {
   ProductVariant,
 } from "@/types/product";
 
+import { useStorefront } from "./storefront-provider";
+
 function materialSwatchClass(value: string) {
   const material = value.toLowerCase();
 
@@ -42,6 +44,7 @@ export function ProductOptions({
   selections: Record<string, string>;
   onSelectOption: (name: string, value: string) => void;
 }) {
+  const { addToCart, cartPending, cartMessage } = useStorefront();
   const selectedVariant = variants.find((variant) =>
     variantMatchesSelections(variant, selections),
   );
@@ -187,14 +190,25 @@ export function ProductOptions({
           type="button"
           variant="luxury"
           size="lg"
-          disabled
-          className="h-13 w-full rounded-none disabled:opacity-100"
+          disabled={!available || cartPending}
+          onClick={() => selectedVariant && addToCart(selectedVariant.id)}
+          className="h-13 w-full rounded-none"
         >
-          {available ? "Add to bag" : "Currently unavailable"}
+          {cartPending
+            ? "Adding to bag"
+            : available
+              ? "Add to bag"
+              : "Currently unavailable"}
         </Button>
-        <p className="mt-3 text-center text-xs leading-5 text-muted-foreground">
-          Online purchasing will be available soon.
-        </p>
+        {cartMessage ? (
+          <p role="status" className="mt-3 text-center text-xs leading-5 text-destructive">
+            {cartMessage}
+          </p>
+        ) : (
+          <p className="mt-3 text-center text-xs leading-5 text-muted-foreground">
+            Secure checkout powered by Shopify.
+          </p>
+        )}
       </div>
     </div>
   );
