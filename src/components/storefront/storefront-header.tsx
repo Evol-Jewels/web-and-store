@@ -12,7 +12,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { AccountSheet } from "@/components/storefront/account-sheet";
 import { CartSheet } from "@/components/storefront/cart-sheet";
@@ -34,22 +34,8 @@ export function StorefrontHeader() {
   const [hidden, setHidden] = useState(false);
   const lastScrollY = useRef(0);
 
-  useEffect(() => {
-    const hero = document.querySelector<HTMLElement>("[data-hero]");
-    // Product detail marks its gallery/purchase block as the immersive region.
-    const immersive = hero
-      ? null
-      : document.querySelector<HTMLElement>("[data-immersive]");
-
-    if (!hero && !immersive) {
-      setSolid(true);
-      setHidden(false);
-      return;
-    }
-
-    lastScrollY.current = window.scrollY;
-
-    const update = () => {
+  const updateHeaderState = useCallback(
+    (hero: HTMLElement | null, immersive: HTMLElement | null) => {
       const y = window.scrollY;
 
       if (hero) {
@@ -60,10 +46,16 @@ export function StorefrontHeader() {
         return;
       }
 
+      if (!immersive) {
+        setSolid(true);
+        setHidden(false);
+        return;
+      }
+
       // Product detail: header stays solid. Hide on scroll down while the
       // gallery/purchase section is in view, then keep it visible below.
       setSolid(true);
-      const withinTop = immersive!.getBoundingClientRect().bottom > 120;
+      const withinTop = immersive.getBoundingClientRect().bottom > 120;
       if (!withinTop || y < 64) {
         setHidden(false);
       } else {
@@ -71,16 +63,30 @@ export function StorefrontHeader() {
         if (Math.abs(delta) > 6) setHidden(delta > 0);
       }
       lastScrollY.current = y;
-    };
+    },
+    [],
+  );
 
-    update();
+  useEffect(() => {
+    const hero = document.querySelector<HTMLElement>("[data-hero]");
+    // Product detail marks its gallery/purchase block as the immersive region.
+    const immersive = hero
+      ? null
+      : document.querySelector<HTMLElement>("[data-immersive]");
+
+    lastScrollY.current = window.scrollY;
+
+    const update = () => updateHeaderState(hero, immersive);
+
+    const animationFrame = window.requestAnimationFrame(update);
     window.addEventListener("scroll", update, { passive: true });
     window.addEventListener("resize", update);
     return () => {
+      window.cancelAnimationFrame(animationFrame);
       window.removeEventListener("scroll", update);
       window.removeEventListener("resize", update);
     };
-  }, [pathname]);
+  }, [pathname, updateHeaderState]);
 
   return (
     <header
