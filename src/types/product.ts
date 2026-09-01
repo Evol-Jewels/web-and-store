@@ -101,5 +101,5 @@ export type ProductConnection = {
     hasPreviousPage: boolean;
     startCursor: string | null;
   };
-  totalProducts: number;
+  totalProducts: number | null;
 };

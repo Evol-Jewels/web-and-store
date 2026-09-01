@@ -10,6 +10,24 @@ type ProductDetailResponse = Omit<ProductDetail, "inventoryProducts"> & {
   inventoryProducts?: ProductDetail["inventoryProducts"] | null;
 };
 
+type ProductConnectionResponse = Omit<
+  ProductConnection,
+  "pageInfo" | "totalProducts"
+> & {
+  pageInfo?: Partial<ProductConnection["pageInfo"]> | null;
+  totalProducts?: number | null;
+  productsCount?: number | null;
+};
+
+type CollectionDetailResponse = Omit<
+  CollectionDetail,
+  "pageInfo" | "productsCount"
+> & {
+  productsCount?: number | null;
+  totalProducts?: number | null;
+  pageInfo?: CollectionDetail["pageInfo"] | null;
+};
+
 const backendApiUrl =
   process.env.BACKEND_API_URL?.replace(/\/$/, "") ?? "http://localhost:3001";
 
@@ -36,13 +54,27 @@ async function requestCatalog<T>(path: string): Promise<T> {
   return response.json() as Promise<T>;
 }
 
-export function getProducts(first = 24, after?: string) {
+export async function getProducts(
+  first = 24,
+  after?: string,
+): Promise<ProductConnection> {
   const searchParams = new URLSearchParams({ first: String(first) });
   if (after) searchParams.set("after", after);
 
-  return requestCatalog<ProductConnection>(
+  const page = await requestCatalog<ProductConnectionResponse>(
     `/api/v1/storefront/products?${searchParams.toString()}`,
   );
+
+  return {
+    ...page,
+    totalProducts: page.totalProducts ?? page.productsCount ?? null,
+    pageInfo: {
+      hasNextPage: page.pageInfo?.hasNextPage ?? false,
+      endCursor: page.pageInfo?.endCursor ?? null,
+      hasPreviousPage: page.pageInfo?.hasPreviousPage ?? false,
+      startCursor: page.pageInfo?.startCursor ?? null,
+    },
+  };
 }
 
 export async function getProduct(handle: string): Promise<ProductDetail> {
@@ -67,11 +99,29 @@ export function getCollections(first = 24, after?: string) {
   );
 }
 
-export function getCollection(handle: string, first = 24, after?: string) {
+export async function getCollection(
+  handle: string,
+  first = 24,
+  after?: string,
+): Promise<CollectionDetail> {
   const searchParams = new URLSearchParams({ first: String(first) });
   if (after) searchParams.set("after", after);
 
-  return requestCatalog<CollectionDetail>(
+  const collection = await requestCatalog<CollectionDetailResponse>(
     `/api/v1/storefront/collections/${encodeURIComponent(handle)}?${searchParams.toString()}`,
   );
+
+  return {
+    ...collection,
+    productsCount:
+      collection.productsCount ??
+      collection.totalProducts ??
+      collection.products.length,
+    pageInfo: collection.pageInfo ?? {
+      hasNextPage: false,
+      endCursor: null,
+      hasPreviousPage: false,
+      startCursor: null,
+    },
+  };
 }

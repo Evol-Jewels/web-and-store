@@ -3,8 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { CatalogNextLink } from "@/components/storefront/catalog-next-link";
-import { ProductGrid } from "@/components/storefront/product-grid";
+import { InfiniteProductGrid } from "@/components/storefront/infinite-product-grid";
 import { productCategories } from "@/lib/catalog";
 import { toExcerpt } from "@/lib/text";
 import { getCollectionDetails } from "@/server/catalog/catalog.service";
@@ -69,7 +68,7 @@ export default async function CollectionPage({
                 {description}
               </p>
               <p className="mt-8 text-[0.62rem] uppercase tracking-[0.2em] text-cinematic-foreground/55">
-                {collection.totalProducts.toLocaleString("en-IN")} pieces
+                {collection.productsCount.toLocaleString("en-IN")} pieces
               </p>
             </div>
           </div>
@@ -142,16 +141,15 @@ export default async function CollectionPage({
             </h2>
           </div>
           <p className="shrink-0 text-xs text-muted-foreground">
-            {collection.totalProducts.toLocaleString("en-IN")} pieces
+            {collection.productsCount.toLocaleString("en-IN")} pieces
           </p>
         </div>
 
-        <ProductGrid products={collection.products} />
-
-        <CatalogNextLink
-          pathname={"/collections/" + collection.handle}
-          endCursor={collection.pageInfo.endCursor}
-          hasNextPage={collection.pageInfo.hasNextPage}
+        <InfiniteProductGrid
+          key={`${collection.handle}:${after ?? "initial"}`}
+          collectionHandle={collection.handle}
+          initialProducts={collection.products}
+          initialPageInfo={collection.pageInfo}
         />
       </section>
     </main>

@@ -3,8 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
-import { CatalogNextLink } from "@/components/storefront/catalog-next-link";
-import { ProductGrid } from "@/components/storefront/product-grid";
+import { InfiniteProductGrid } from "@/components/storefront/infinite-product-grid";
 import { productCategories } from "@/lib/catalog";
 import { findProducts } from "@/server/catalog/catalog.repository";
 
@@ -105,17 +104,17 @@ export default async function ProductsPage({
               The complete collection
             </h2>
           </div>
-          <p className="shrink-0 text-xs text-muted-foreground">
-            {page.totalProducts.toLocaleString("en-IN")} pieces
-          </p>
+          {page.totalProducts !== null ? (
+            <p className="shrink-0 text-xs text-muted-foreground">
+              {page.totalProducts.toLocaleString("en-IN")} pieces
+            </p>
+          ) : null}
         </div>
 
-        <ProductGrid products={page.products} />
-
-        <CatalogNextLink
-          pathname="/products"
-          endCursor={page.pageInfo.endCursor}
-          hasNextPage={page.pageInfo.hasNextPage}
+        <InfiniteProductGrid
+          key={after ?? "initial"}
+          initialProducts={page.products}
+          initialPageInfo={page.pageInfo}
         />
       </section>
     </main>

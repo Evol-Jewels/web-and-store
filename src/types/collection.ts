@@ -29,7 +29,6 @@ export type CollectionDetail = CollectionCardData & {
     hasPreviousPage: boolean;
     startCursor: string | null;
   };
-  totalProducts: number;
 };
 
 export type CollectionConnection = {
