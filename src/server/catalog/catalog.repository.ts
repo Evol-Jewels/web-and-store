@@ -19,6 +19,10 @@ export function findCollections(first = 24, after?: string) {
   return getCollections(first, after);
 }
 
-export function findCollectionByHandle(handle: string) {
-  return getCollection(handle);
+export function findCollectionByHandle(
+  handle: string,
+  first = 24,
+  after?: string,
+) {
+  return getCollection(handle, first, after);
 }

@@ -61,7 +61,7 @@ export function FeaturedCollection({
             </p>
             <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-4">
               <Link
-                href={`/products?collection=${handle}`}
+                href={`/collections/${handle}`}
                 className={buttonVariants({
                   variant: "luxury",
                   className:

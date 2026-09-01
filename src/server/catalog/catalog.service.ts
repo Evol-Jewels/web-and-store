@@ -1,7 +1,6 @@
 import "server-only";
 
 import type { CollectionCardData, CollectionDetail } from "@/types/collection";
-import type { ProductCardData } from "@/types/product";
 
 import {
   findCollectionByHandle,
@@ -12,27 +11,6 @@ import {
 
 export async function listFeaturedProducts() {
   return findProducts();
-}
-
-export async function listAllProducts() {
-  const products: ProductCardData[] = [];
-  const seenCursors = new Set<string>();
-  let after: string | undefined;
-
-  do {
-    const page = await findProducts(48, after);
-    products.push(...page.products);
-
-    const nextCursor = page.pageInfo.hasNextPage
-      ? page.pageInfo.endCursor ?? undefined
-      : undefined;
-
-    if (!nextCursor || seenCursors.has(nextCursor)) break;
-    seenCursors.add(nextCursor);
-    after = nextCursor;
-  } while (after);
-
-  return products;
 }
 
 export async function getProductDetails(handle: string) {
@@ -50,11 +28,34 @@ export async function listFeaturedCollections(
   }
 }
 
+export async function listAllCollections(): Promise<CollectionCardData[]> {
+  const collections: CollectionCardData[] = [];
+  const seenCursors = new Set<string>();
+  let after: string | undefined;
+
+  do {
+    const page = await findCollections(48, after);
+    collections.push(...page.collections);
+
+    const nextCursor = page.pageInfo.hasNextPage
+      ? page.pageInfo.endCursor ?? undefined
+      : undefined;
+
+    if (!nextCursor || seenCursors.has(nextCursor)) break;
+    seenCursors.add(nextCursor);
+    after = nextCursor;
+  } while (after);
+
+  return collections;
+}
+
 export async function getCollectionDetails(
   handle: string,
+  first = 24,
+  after?: string,
 ): Promise<CollectionDetail | null> {
   try {
-    return await findCollectionByHandle(handle);
+    return await findCollectionByHandle(handle, first, after);
   } catch {
     return null;
   }

@@ -98,5 +98,8 @@ export type ProductConnection = {
   pageInfo: {
     hasNextPage: boolean;
     endCursor: string | null;
+    hasPreviousPage: boolean;
+    startCursor: string | null;
   };
+  totalProducts: number | null;
 };

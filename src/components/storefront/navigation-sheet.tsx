@@ -12,7 +12,7 @@ import {
 
 const navigationLinks = [
   { href: "/", label: "Jewellery" },
-  { href: "/#collection", label: "Collections" },
+  { href: "/collections", label: "Collections" },
   { href: "/products", label: "All creations" },
   { href: "/#", label: "Our world" },
 ];
@@ -21,7 +21,10 @@ export function NavigationSheet({ children }: { children: React.ReactNode }) {
   return (
     <Sheet>
       <SheetTrigger render={children as React.ReactElement} />
-      <SheetContent side="left" className="data-[side=left]:w-full data-[side=left]:sm:max-w-[28rem]">
+      <SheetContent
+        side="left"
+        className="data-[side=left]:w-full data-[side=left]:sm:max-w-[28rem]"
+      >
         <SheetHeader className="border-b border-border px-7 py-6 text-center sm:px-10">
           <SheetTitle className="font-sans text-xs font-medium uppercase tracking-[0.22em]">
             Explore Evol
