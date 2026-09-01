@@ -55,6 +55,7 @@ export type ProductVariant = {
   price: Money;
   compareAtPrice: Money | null;
   availableForSale: boolean;
+  mediaIds?: string[];
   selectedOptions: Array<{
     name: string;
     value: string;
