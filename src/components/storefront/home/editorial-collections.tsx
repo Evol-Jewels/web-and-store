@@ -73,7 +73,7 @@ export function EditorialCollections() {
         {tiles.map((tile) => (
           <Link
             key={tile.handle}
-            href={`/products?collection=${tile.handle}`}
+            href={`/collections/${tile.handle}`}
             className={`group relative overflow-hidden bg-product-surface ${tile.className}`}
           >
             <Image

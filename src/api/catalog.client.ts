@@ -67,8 +67,11 @@ export function getCollections(first = 24, after?: string) {
   );
 }
 
-export function getCollection(handle: string) {
+export function getCollection(handle: string, first = 24, after?: string) {
+  const searchParams = new URLSearchParams({ first: String(first) });
+  if (after) searchParams.set("after", after);
+
   return requestCatalog<CollectionDetail>(
-    `/api/v1/storefront/collections/${encodeURIComponent(handle)}`,
+    `/api/v1/storefront/collections/${encodeURIComponent(handle)}?${searchParams.toString()}`,
   );
 }

@@ -97,7 +97,7 @@ export function SearchSheet({ children }: { children: React.ReactNode }) {
                   <SheetClose
                     render={
                       <Link
-                        href={`/products?category=${category.slug}`}
+                        href={`/collections/${category.slug}`}
                         className={linkClass}
                       />
                     }
@@ -117,7 +117,7 @@ export function SearchSheet({ children }: { children: React.ReactNode }) {
                   <SheetClose
                     render={
                       <Link
-                        href={`/products?collection=${collection.handle}`}
+                        href={`/collections/${collection.handle}`}
                         className={linkClass}
                       />
                     }

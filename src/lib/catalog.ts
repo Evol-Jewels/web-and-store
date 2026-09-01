@@ -1,5 +1,3 @@
-import type { ProductCardData } from "@/types/product";
-
 export const productCategories = [
   {
     slug: "rings",
@@ -35,20 +33,3 @@ export const productCategories = [
 
 export type ProductCategory = (typeof productCategories)[number];
 export type ProductCategorySlug = ProductCategory["slug"];
-
-export function findProductCategory(value: string | undefined) {
-  return productCategories.find((category) => category.slug === value);
-}
-
-export function productMatchesCategory(
-  product: ProductCardData,
-  category: ProductCategorySlug,
-) {
-  const productType = product.productType
-    ?.toLocaleLowerCase("en-IN")
-    .replace(/[^a-z]/g, "")
-    .replace(/s$/, "");
-  const categoryType = category.replace(/s$/, "");
-
-  return productType === categoryType;
-}

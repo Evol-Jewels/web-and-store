@@ -23,6 +23,13 @@ export type CollectionDetail = CollectionCardData & {
     description: string | null;
   };
   products: ProductCardData[];
+  pageInfo: {
+    hasNextPage: boolean;
+    endCursor: string | null;
+    hasPreviousPage: boolean;
+    startCursor: string | null;
+  };
+  totalProducts: number;
 };
 
 export type CollectionConnection = {
