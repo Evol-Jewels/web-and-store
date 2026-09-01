@@ -107,24 +107,35 @@ function isProductVideo(media: ProductMedia): media is ProductVideo {
   return "mediaContentType" in media && media.mediaContentType === "VIDEO";
 }
 
-function ProductShowcaseMedia({ product }: { product: ProductDetail }) {
-  const video = product.media.find(isProductVideo);
+function orderedVideoSources(sources: ProductVideo["sources"]) {
+  return [...sources].sort((left, right) => {
+    const leftIsHls = left.mimeType === "application/x-mpegURL";
+    const rightIsHls = right.mimeType === "application/x-mpegURL";
 
-  if (video) {
+    if (leftIsHls !== rightIsHls) return leftIsHls ? -1 : 1;
+    return right.width * right.height - left.width * left.height;
+  });
+}
+
+function ProductShowcaseMedia({ product }: { product: ProductDetail }) {
+  const video = product.showcaseVideo ?? product.media.find(isProductVideo);
+
+  if (video?.sources.length) {
     return (
       <video
-        className="h-full w-full object-cover"
+        className="h-full w-full object-contain"
         aria-label={video.altText || `${product.title} product video`}
         poster={video.previewImage?.url}
         controls
         loop
         muted
         playsInline
-        preload="metadata"
+        preload="none"
       >
-        {video.sources.map((source) => (
+        {orderedVideoSources(video.sources).map((source) => (
           <source key={source.url} src={source.url} type={source.mimeType} />
         ))}
+        Your browser does not support product video playback.
       </video>
     );
   }
@@ -157,7 +168,7 @@ export function ProductDetails({ product }: { product: ProductDetail }) {
       <div className="luxury-container grid gap-12 py-16 sm:py-20 lg:grid-cols-[minmax(0,1.45fr)_minmax(20rem,0.85fr)] lg:gap-16 xl:gap-24">
         <div>
           <p className="eyebrow mb-5">Product showcase</p>
-          <div className="relative aspect-[4/3] overflow-hidden bg-product-surface">
+          <div className="relative aspect-[4/3] overflow-hidden bg-media-canvas">
             <ProductShowcaseMedia product={product} />
           </div>
         </div>

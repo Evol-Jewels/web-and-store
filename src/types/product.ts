@@ -82,6 +82,7 @@ export type ProductDetail = ProductCardData & {
     description: string | null;
   };
   media: ProductMedia[];
+  showcaseVideo: ProductVideo | null;
   options: ProductOption[];
   variants: ProductVariant[];
   inventoryProducts: InventoryProduct[];

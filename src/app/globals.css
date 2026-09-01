@@ -23,6 +23,7 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-media-canvas: var(--media-canvas);
   --color-product-surface: var(--product-surface);
   --color-cinematic: var(--cinematic);
   --color-cinematic-foreground: var(--cinematic-foreground);
@@ -56,6 +57,7 @@
   --border: oklch(0.86 0.009 75);
   --input: oklch(0.86 0.009 75);
   --ring: oklch(0.38 0.012 70);
+  --media-canvas: oklch(1 0 0);
   --product-surface: oklch(0.94 0.008 76);
   --cinematic: oklch(0.125 0.006 70);
   --cinematic-foreground: oklch(0.96 0.006 80);
