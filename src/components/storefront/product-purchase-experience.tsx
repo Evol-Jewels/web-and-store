@@ -3,54 +3,20 @@
 import { useState } from "react";
 
 import { availableInventoryForVariant } from "@/lib/inventory-availability";
+import {
+  imagesForSelections,
+  isProductImage,
+} from "@/lib/product-media";
 
-import type {
-  ProductDetail,
-  ProductImage,
-  ProductMedia,
-  ProductOption,
-  ProductVariant,
-} from "@/types/product";
+import type { ProductDetail, ProductVariant } from "@/types/product";
 
 import { ProductGallery } from "./product-gallery";
 import { ProductInformation } from "./product-information";
-
-const IMAGES_PER_COLOUR = 4;
-
-function isProductImage(media: ProductMedia): media is ProductImage {
-  return !("mediaContentType" in media);
-}
-
-function isColourOption(option: ProductOption) {
-  const name = option.name.toLowerCase();
-  return name.includes("color") || name.includes("colour");
-}
 
 function selectionsFromVariant(variant: ProductVariant | undefined) {
   return Object.fromEntries(
     variant?.selectedOptions.map(({ name, value }) => [name, value]) ?? [],
   );
-}
-
-function imagesForSelections(
-  images: ProductImage[],
-  options: ProductOption[],
-  selections: Record<string, string>,
-) {
-  const colourOption = options.find(isColourOption);
-  if (!colourOption) return images;
-
-  const selectedColour = selections[colourOption.name];
-  const colourIndex = Math.max(
-    colourOption.values.indexOf(selectedColour),
-    0,
-  );
-  const start = colourIndex * IMAGES_PER_COLOUR;
-  const selectedImages = images.slice(start, start + IMAGES_PER_COLOUR);
-
-  return selectedImages.length > 0
-    ? selectedImages
-    : images.slice(0, IMAGES_PER_COLOUR);
 }
 
 export function ProductPurchaseExperience({
@@ -72,6 +38,7 @@ export function ProductPurchaseExperience({
   const images = imagesForSelections(
     product.media.filter(isProductImage),
     product.options,
+    product.variants,
     selections,
   );
 
