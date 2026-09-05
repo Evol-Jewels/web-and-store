@@ -123,7 +123,7 @@ function ProductShowcaseMedia({ product }: { product: ProductDetail }) {
   if (video?.sources.length) {
     return (
       <video
-        className="h-full w-full object-contain"
+        className="h-full w-full object-cover object-center"
         aria-label={video.altText || `${product.title} product video`}
         poster={video.previewImage?.url}
         controls
