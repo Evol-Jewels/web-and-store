@@ -82,7 +82,7 @@ export default async function ProductPage({
         </Breadcrumb>
       </div>
 
-      <div data-immersive className="luxury-container pb-16 lg:pb-24">
+      <div className="luxury-container pb-16 lg:pb-24">
         <ProductPurchaseExperience product={product} />
       </div>
 

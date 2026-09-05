@@ -146,7 +146,7 @@ export function SearchSheet({ children }: { children: React.ReactNode }) {
                         alt={product.featuredImage.altText}
                         fill
                         sizes="200px"
-                        className="object-contain p-[8%] transition-transform duration-700 ease-out group-hover:scale-[1.04] motion-reduce:transition-none"
+                        className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04] motion-reduce:transition-none"
                       />
                     ) : null}
                   </div>
