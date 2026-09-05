@@ -38,7 +38,7 @@ export function ContactSheet({ children }: { children: React.ReactNode }) {
 
           <Accordion defaultValue={["call"]}>
             <AccordionItem value="call" className="border-t border-border">
-              <AccordionTrigger className="rounded-none py-5 text-[0.67rem] font-medium uppercase tracking-[0.18em] hover:no-underline">
+              <AccordionTrigger className="rounded-md py-5 text-[0.67rem] font-medium uppercase tracking-[0.18em] hover:no-underline">
                 Call us
               </AccordionTrigger>
               <AccordionContent className="pb-6">
@@ -48,7 +48,7 @@ export function ContactSheet({ children }: { children: React.ReactNode }) {
                 </p>
                 <Link
                   href="#"
-                  className="mt-5 flex min-h-12 items-center gap-3 bg-muted px-4 text-xs no-underline! transition-colors hover:bg-accent"
+                  className="mt-5 flex min-h-12 items-center gap-3 rounded-md bg-muted px-4 text-xs no-underline! transition-colors hover:bg-accent"
                 >
                   <Phone className="size-4" strokeWidth={1.25} />
                   Request a call
@@ -57,7 +57,7 @@ export function ContactSheet({ children }: { children: React.ReactNode }) {
             </AccordionItem>
 
             <AccordionItem value="meet">
-              <AccordionTrigger className="rounded-none py-5 text-[0.67rem] font-medium uppercase tracking-[0.18em] hover:no-underline">
+              <AccordionTrigger className="rounded-md py-5 text-[0.67rem] font-medium uppercase tracking-[0.18em] hover:no-underline">
                 Meet us
               </AccordionTrigger>
               <AccordionContent className="pb-6">
@@ -77,7 +77,7 @@ export function ContactSheet({ children }: { children: React.ReactNode }) {
             </AccordionItem>
 
             <AccordionItem value="write">
-              <AccordionTrigger className="rounded-none py-5 text-[0.67rem] font-medium uppercase tracking-[0.18em] hover:no-underline">
+              <AccordionTrigger className="rounded-md py-5 text-[0.67rem] font-medium uppercase tracking-[0.18em] hover:no-underline">
                 Write to us
               </AccordionTrigger>
               <AccordionContent className="pb-6">

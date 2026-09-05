@@ -13,7 +13,7 @@ export function ProductGallery({
 }) {
   if (images.length === 0) {
     return (
-      <div className="grid aspect-[4/5] place-items-center bg-product-surface text-xs uppercase tracking-[0.24em] text-muted-foreground">
+      <div className="grid aspect-[4/5] place-items-center rounded-md bg-product-surface text-xs uppercase tracking-[0.24em] text-muted-foreground">
         Evol
       </div>
     );
@@ -22,7 +22,7 @@ export function ProductGallery({
   return (
     <div className="space-y-2">
       {images.map((image, index) => (
-        <figure key={image.id} className="overflow-hidden bg-product-surface">
+        <figure key={image.id} className="overflow-hidden rounded-md bg-product-surface">
           <Image
             src={image.url}
             alt={image.altText || productTitle}

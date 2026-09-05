@@ -2,6 +2,14 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { Reveal } from "@/components/storefront/reveal";
+import { buttonVariants } from "@/components/ui/button";
+
+const assurances = [
+  ["IGI / SGL", "Certified"],
+  ["14K & 18K", "Hallmarked gold"],
+  ["India", "Handcrafted"],
+  ["For life", "Annual care"],
+];
 
 export function BrandStory() {
   return (
@@ -27,22 +35,37 @@ export function BrandStory() {
             >
               The same brilliance. A new beginning.
             </h2>
-            <p className="mt-8 text-sm leading-7 text-muted-foreground sm:text-base">
-              Evol specialises in lab-grown diamonds: physically, chemically,
-              and optically identical to mined diamonds, created through human
-              ingenuity and chosen with complete clarity.
+            <p className="mt-8 max-w-lg text-sm leading-7 text-muted-foreground sm:text-base">
+              Independently certified lab-grown diamonds, set in hallmarked gold
+              and handcrafted in India with care that continues for life.
             </p>
-            <p className="mt-5 text-sm leading-7 text-muted-foreground sm:text-base">
-              Every stone is independently certified. Every setting is made in
-              hallmarked gold. Every piece is handcrafted in India and cared
-              for long after it leaves us.
-            </p>
-            <Link
-              href="/products"
-              className="link-underline mt-9 inline-flex text-[0.65rem] uppercase tracking-[0.2em]"
-            >
-              Discover our diamonds
-            </Link>
+            <dl className="mt-10 grid grid-cols-2 gap-x-8 gap-y-7">
+              {assurances.map(([value, label]) => (
+                <div key={label}>
+                  <dt className="font-heading text-2xl tracking-[-0.02em]">{value}</dt>
+                  <dd className="mt-1 text-[0.6rem] uppercase tracking-[0.18em] text-muted-foreground">
+                    {label}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+            <div className="mt-10 flex flex-wrap items-center gap-x-7 gap-y-4">
+              <Link
+                href="/products"
+                className={buttonVariants({
+                  variant: "luxury",
+                  className: "h-12 rounded-md px-8 text-[0.62rem]",
+                })}
+              >
+                Explore our diamonds
+              </Link>
+              <Link
+                href="/products"
+                className="link-underline inline-flex text-[0.65rem] uppercase tracking-[0.2em]"
+              >
+                Find your piece
+              </Link>
+            </div>
           </Reveal>
         </div>
       </div>

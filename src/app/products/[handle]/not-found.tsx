@@ -18,7 +18,7 @@ export default function ProductNotFound() {
           href="/"
           className={cn(
             buttonVariants({ variant: "luxury", size: "lg" }),
-            "mt-9 h-12 rounded-none px-8",
+            "mt-9 h-12 rounded-md px-8",
           )}
         >
           Return to the collection

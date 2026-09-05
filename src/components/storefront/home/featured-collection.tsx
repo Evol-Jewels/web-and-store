@@ -65,7 +65,7 @@ export function FeaturedCollection({
                 className={buttonVariants({
                   variant: "luxury",
                   className:
-                    "h-12 rounded-none px-8 text-[0.62rem] uppercase tracking-[0.18em]",
+                    "h-12 rounded-md px-8 text-[0.62rem] uppercase tracking-[0.18em]",
                 })}
               >
                 Explore the collection

@@ -25,8 +25,7 @@ export function EditorialBand() {
             Brilliance with a point of view.
           </h2>
           <p className="mt-7 max-w-md text-sm leading-7 text-white/80 sm:text-base">
-            Diamonds that move with you, from the everyday to the unforgettable.
-            Designed to be lived in, not left in the box.
+            Designed to be lived in, from the everyday to the unforgettable.
           </p>
           <Link
             href="/products"
