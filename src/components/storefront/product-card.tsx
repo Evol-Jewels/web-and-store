@@ -41,7 +41,7 @@ export function ProductCard({
                 fill
                 priority={priority}
                 sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                className="object-contain transition-transform duration-700 ease-out group-hover:scale-[1.035] motion-reduce:transition-none"
+                className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.035] motion-reduce:transition-none"
               />
             ) : (
               <div className="absolute inset-0 grid place-items-center text-xs uppercase tracking-[0.24em] text-muted-foreground">

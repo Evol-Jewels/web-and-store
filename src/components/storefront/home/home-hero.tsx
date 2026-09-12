@@ -31,25 +31,24 @@ export function HomeHero() {
             your own.
           </h1>
           <p className="home-reveal home-reveal-delay-2 mt-8 max-w-md text-sm leading-7 text-white/75 sm:text-base">
-            Lab-grown diamonds of exceptional clarity, set in hallmarked gold
-            and shaped by hand in India. Modern heirlooms, made with intention.
+            Lab-grown diamonds, shaped by hand in India for a lifetime of wear.
           </p>
           <div className="home-reveal home-reveal-delay-2 mt-10 flex flex-wrap items-center gap-x-8 gap-y-4">
             <Link
               href="/products"
               className={cn(
                 buttonVariants(),
-                "h-12 rounded-none bg-white px-8 text-[0.64rem] uppercase tracking-[0.18em] text-foreground hover:bg-white/85",
+                "h-12 rounded-md bg-white px-8 text-[0.64rem] uppercase tracking-[0.18em] text-foreground hover:bg-white/85",
               )}
             >
               Explore the collection
             </Link>
 
             <Link
-              href="/products"
+              href="#collections"
               className="link-underline text-[0.64rem] uppercase tracking-[0.18em] text-white/85"
             >
-              Book an appointment
+              Discover the story
             </Link>
           </div>
         </div>

@@ -19,18 +19,28 @@ export function Reveal({ children, className, delay = 0, image = false }: Reveal
     const element = ref.current;
     if (!element) return;
 
+    const show = () => {
+      setShown(true);
+      observer.disconnect();
+    };
+
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
-          setShown(true);
-          observer.disconnect();
-        }
+        if (entry.isIntersecting) show();
       },
       { threshold: 0.12, rootMargin: "0px 0px -8% 0px" },
     );
 
     observer.observe(element);
-    return () => observer.disconnect();
+    const frame = window.requestAnimationFrame(() => {
+      const bounds = element.getBoundingClientRect();
+      if (bounds.bottom > 0 && bounds.top < window.innerHeight * 0.92) show();
+    });
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+      observer.disconnect();
+    };
   }, []);
 
   return (

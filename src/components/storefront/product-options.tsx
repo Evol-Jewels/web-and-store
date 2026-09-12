@@ -1,6 +1,11 @@
-import { ChevronDown } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { formatMoney } from "@/lib/format";
 import {
@@ -109,30 +114,45 @@ export function ProductOptions({
 
         if (isSize) {
           return (
-            <label key={option.id} className="block">
-              <span className="mb-2 block text-[0.66rem] uppercase tracking-[0.18em] text-muted-foreground">
+            <div key={option.id} className="block">
+              <label
+                htmlFor={`product-option-${option.id}`}
+                className="mb-2 block text-[0.66rem] uppercase tracking-[0.18em] text-muted-foreground"
+              >
                 {option.name}
-              </span>
-              <span className="relative block">
-                <select
-                  value={selections[option.name]}
-                  onChange={(event) =>
-                    onSelectOption(option.name, event.target.value)
-                  }
-                  className="h-13 w-full appearance-none rounded-none border border-border bg-background px-4 pr-12 text-sm outline-none transition-colors hover:border-foreground focus-visible:border-foreground focus-visible:ring-2 focus-visible:ring-ring/30"
+              </label>
+              <Select
+                items={option.values.map((value) => ({ label: value, value }))}
+                value={selections[option.name]}
+                onValueChange={(value) =>
+                  value && onSelectOption(option.name, value)
+                }
+              >
+                <SelectTrigger
+                  id={`product-option-${option.id}`}
+                  aria-label={option.name}
+                  className="group w-full rounded-none border-border bg-background px-4 text-sm hover:border-foreground focus-visible:border-foreground focus-visible:ring-2 focus-visible:ring-ring/30 data-[size=default]:h-13"
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent
+                  align="start"
+                  alignItemWithTrigger={false}
+                  sideOffset={6}
+                  className="rounded-none border border-border bg-background p-1.5 shadow-sm ring-0"
                 >
                   {option.values.map((value) => (
-                    <option key={value} value={value}>
+                    <SelectItem
+                      key={value}
+                      value={value}
+                      className="min-h-11 rounded-none px-3 pr-10 text-[0.72rem] uppercase tracking-[0.16em] focus:bg-accent"
+                    >
                       {value}
-                    </option>
+                    </SelectItem>
                   ))}
-                </select>
-                <ChevronDown
-                  aria-hidden="true"
-                  className="pointer-events-none absolute right-4 top-1/2 size-4 -translate-y-1/2"
-                />
-              </span>
-            </label>
+                </SelectContent>
+              </Select>
+            </div>
           );
         }
 

@@ -72,7 +72,7 @@ export function WishlistSheet({ children }: { children: React.ReactNode }) {
                     type="button"
                     variant="ghost"
                     size="icon-sm"
-                    className="self-start rounded-none hover:bg-transparent hover:opacity-55"
+                    className="self-start rounded-md hover:bg-transparent hover:opacity-55"
                     aria-label={`Remove ${product.title} from wishlist`}
                     onClick={() => toggleWishlist(product)}
                   >
@@ -97,7 +97,7 @@ export function WishlistSheet({ children }: { children: React.ReactNode }) {
                 className={buttonVariants({
                   variant: "outline",
                   className:
-                    "mt-8 h-11 rounded-none px-7 text-[0.64rem] uppercase tracking-[0.18em]",
+                    "mt-8 h-11 rounded-md px-7 text-[0.64rem] uppercase tracking-[0.18em]",
                 })}
               >
                 Explore jewellery
