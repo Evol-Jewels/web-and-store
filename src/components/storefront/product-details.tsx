@@ -1,5 +1,6 @@
 import Image from "next/image";
 
+import { ProductShowcaseVideo } from "@/components/storefront/product-showcase-video";
 import {
   Accordion,
   AccordionContent,
@@ -107,36 +108,12 @@ function isProductVideo(media: ProductMedia): media is ProductVideo {
   return "mediaContentType" in media && media.mediaContentType === "VIDEO";
 }
 
-function orderedVideoSources(sources: ProductVideo["sources"]) {
-  return [...sources].sort((left, right) => {
-    const leftIsHls = left.mimeType === "application/x-mpegURL";
-    const rightIsHls = right.mimeType === "application/x-mpegURL";
-
-    if (leftIsHls !== rightIsHls) return leftIsHls ? -1 : 1;
-    return right.width * right.height - left.width * left.height;
-  });
-}
-
 function ProductShowcaseMedia({ product }: { product: ProductDetail }) {
   const video = product.showcaseVideo ?? product.media.find(isProductVideo);
 
   if (video?.sources.length) {
     return (
-      <video
-        className="h-full w-full object-cover object-center"
-        aria-label={video.altText || `${product.title} product video`}
-        poster={video.previewImage?.url}
-        controls
-        loop
-        muted
-        playsInline
-        preload="none"
-      >
-        {orderedVideoSources(video.sources).map((source) => (
-          <source key={source.url} src={source.url} type={source.mimeType} />
-        ))}
-        Your browser does not support product video playback.
-      </video>
+      <ProductShowcaseVideo productTitle={product.title} video={video} />
     );
   }
 
