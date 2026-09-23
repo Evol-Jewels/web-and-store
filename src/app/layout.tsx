@@ -4,6 +4,7 @@ import localFont from "next/font/local";
 import { StorefrontFooter } from "@/components/storefront/storefront-footer";
 import { StorefrontHeader } from "@/components/storefront/storefront-header";
 import { StorefrontProvider } from "@/components/storefront/storefront-provider";
+import { hasCustomerSession } from "@/lib/shopify/customer-account";
 
 import "./globals.css";
 
@@ -28,9 +29,11 @@ export const metadata: Metadata = {
     "Fine jewellery shaped by light, material and moments that endure.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const signedIn = await hasCustomerSession();
+
   return (
     <html
       lang="en"
@@ -38,7 +41,7 @@ export default function RootLayout({
     >
       <body className="flex min-h-full flex-col">
         <StorefrontProvider>
-          <StorefrontHeader />
+          <StorefrontHeader signedIn={signedIn} />
           {children}
           <StorefrontFooter />
         </StorefrontProvider>

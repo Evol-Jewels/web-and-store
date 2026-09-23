@@ -28,7 +28,7 @@ const utilityButtonClass =
 
 const HERO_ROUTES = new Set(["/", "/products"]);
 
-export function StorefrontHeader() {
+export function StorefrontHeader({ signedIn }: { signedIn: boolean }) {
   const pathname = usePathname();
   const [solid, setSolid] = useState(() => !HERO_ROUTES.has(pathname));
   const [hidden, setHidden] = useState(false);
@@ -173,16 +173,28 @@ export function StorefrontHeader() {
               <Heart className="size-4" strokeWidth={1.25} />
             </Button>
           </WishlistSheet>
-          <AccountSheet>
+          {signedIn ? (
             <Button
+              render={<Link href="/account" />}
               variant="ghost"
               size="icon"
               className={utilityButtonClass}
-              aria-label="Open account"
+              aria-label="View account"
             >
               <UserRound className="size-4" strokeWidth={1.25} />
             </Button>
-          </AccountSheet>
+          ) : (
+            <AccountSheet>
+              <Button
+                variant="ghost"
+                size="icon"
+                className={utilityButtonClass}
+                aria-label="Sign in"
+              >
+                <UserRound className="size-4" strokeWidth={1.25} />
+              </Button>
+            </AccountSheet>
+          )}
           <CartSheet>
             <Button
               variant="ghost"
