@@ -91,26 +91,9 @@ export default async function ProductsPage({
       </nav>
 
       <section
-        className="luxury-container py-16 sm:py-20 lg:py-24"
-        aria-labelledby="catalog-title"
+        className="luxury-container pb-16 pt-8 sm:pb-20 sm:pt-10 lg:pb-24"
+        aria-label="All jewellery products"
       >
-        <div className="mb-10 flex items-end justify-between gap-6 border-b border-border pb-5 sm:mb-14">
-          <div>
-            <p className="eyebrow">Browse the collection</p>
-            <h2
-              id="catalog-title"
-              className="mt-3 font-heading text-3xl tracking-[-0.025em] sm:text-4xl"
-            >
-              The complete collection
-            </h2>
-          </div>
-          {page.totalProducts !== null ? (
-            <p className="shrink-0 text-xs text-muted-foreground">
-              {page.totalProducts.toLocaleString("en-IN")} pieces
-            </p>
-          ) : null}
-        </div>
-
         <InfiniteProductGrid
           key={after ?? "initial"}
           initialProducts={page.products}

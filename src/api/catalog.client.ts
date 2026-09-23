@@ -77,6 +77,12 @@ export async function getProducts(
   };
 }
 
+export function getFilteredProducts(searchParams: URLSearchParams) {
+  return requestCatalog<ProductConnection>(
+    `/api/v1/storefront/products/filtered?${searchParams.toString()}`,
+  );
+}
+
 export async function getProduct(handle: string): Promise<ProductDetail> {
   const product = await requestCatalog<ProductDetailResponse>(
     `/api/v1/storefront/products/${encodeURIComponent(handle)}`,
