@@ -12,7 +12,6 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
 
 import { AccountSheet } from "@/components/storefront/account-sheet";
 import { CartSheet } from "@/components/storefront/cart-sheet";
@@ -20,79 +19,28 @@ import { ContactSheet } from "@/components/storefront/contact-sheet";
 import { NavigationSheet } from "@/components/storefront/navigation-sheet";
 import { SearchSheet } from "@/components/storefront/search-sheet";
 import { WishlistSheet } from "@/components/storefront/wishlist-sheet";
+import { useHeaderVisibility } from "@/components/storefront/use-header-visibility";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const utilityButtonClass =
   "size-11 rounded-none text-current hover:bg-transparent hover:text-current hover:opacity-60 aria-expanded:bg-transparent aria-expanded:text-current";
 
-const HERO_ROUTES = new Set(["/", "/products"]);
-
 export function StorefrontHeader({ signedIn }: { signedIn: boolean }) {
   const pathname = usePathname();
-  const [solid, setSolid] = useState(() => !HERO_ROUTES.has(pathname));
-  const [hidden, setHidden] = useState(false);
-  const lastScrollY = useRef(0);
-  const isProductDetail = pathname.startsWith("/products/");
-
-  const updateHeaderState = useCallback(
-    (hero: HTMLElement | null) => {
-      const y = window.scrollY;
-
-      if (hero) {
-        // Home / listing: transparent over the hero, solid once past it.
-        setSolid(hero.getBoundingClientRect().bottom <= 88);
-        setHidden(false);
-        lastScrollY.current = y;
-        return;
-      }
-
-      if (!isProductDetail) {
-        setSolid(true);
-        setHidden(false);
-        return;
-      }
-
-      setSolid(true);
-      if (y < 64) {
-        setHidden(false);
-        lastScrollY.current = y;
-      } else {
-        const delta = y - lastScrollY.current;
-        if (Math.abs(delta) > 6) {
-          setHidden(delta > 0);
-          lastScrollY.current = y;
-        }
-      }
-    },
-    [isProductDetail],
-  );
-
-  useEffect(() => {
-    const hero = document.querySelector<HTMLElement>("[data-hero]");
-
-    lastScrollY.current = window.scrollY;
-
-    const update = () => updateHeaderState(hero);
-
-    const animationFrame = window.requestAnimationFrame(update);
-    window.addEventListener("scroll", update, { passive: true });
-    window.addEventListener("resize", update);
-    return () => {
-      window.cancelAnimationFrame(animationFrame);
-      window.removeEventListener("scroll", update);
-      window.removeEventListener("resize", update);
-    };
-  }, [pathname, updateHeaderState]);
+  const { solid, hidden } = useHeaderVisibility(pathname);
 
   return (
     <header
+      data-storefront-header
+      inert={hidden}
+      aria-hidden={hidden}
       className={cn(
         "fixed inset-x-0 top-0 z-50 transition-[transform,background-color,border-color,color] duration-300 ease-out",
         solid
           ? "border-b border-border/60 bg-background/90 text-foreground backdrop-blur-md"
           : "bg-gradient-to-b from-foreground/55 via-foreground/15 to-transparent text-white",
-        hidden && "-translate-y-full",
+        hidden && "pointer-events-none -translate-y-full",
       )}
     >
       <div

@@ -5,6 +5,7 @@ import { BrandStory } from "@/components/storefront/home/brand-story";
 import { EditorialBand } from "@/components/storefront/home/editorial-band";
 import { EditorialCollections } from "@/components/storefront/home/editorial-collections";
 import { HomeHero } from "@/components/storefront/home/home-hero";
+import { HomeIntro } from "@/components/storefront/home/home-intro";
 import { ProductCard } from "@/components/storefront/product-card";
 import { Reveal } from "@/components/storefront/reveal";
 import { listFeaturedProducts } from "@/server/catalog/catalog.service";
@@ -33,12 +34,14 @@ function selectFeaturedProducts(products: ProductCardData[]) {
 }
 
 export default async function Home() {
-  const { products } = await listFeaturedProducts();
+  const { products } = await listFeaturedProducts(48);
   const featuredProducts = selectFeaturedProducts(products);
 
   return (
-    <main className="overflow-hidden">
-      <HomeHero />
+    <main className="overflow-clip">
+      <HomeIntro>
+        <HomeHero />
+      </HomeIntro>
 
       <EditorialCollections />
 
