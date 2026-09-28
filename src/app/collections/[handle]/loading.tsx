@@ -2,22 +2,48 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function CollectionLoading() {
   return (
-    <main className="pt-20">
-      <div className="grid min-h-[32rem] bg-cinematic lg:grid-cols-2">
-        <div className="flex items-center px-6 py-20 sm:px-12 lg:px-20">
-          <div className="w-full max-w-xl space-y-6">
-            <Skeleton className="h-3 w-32 bg-background/15" />
-            <Skeleton className="h-20 w-full bg-background/15" />
-            <Skeleton className="h-16 w-4/5 bg-background/15" />
-          </div>
+    <main aria-busy="true">
+      <p role="status" className="sr-only">
+        Loading collection
+      </p>
+      <section
+        data-hero
+        className="relative isolate min-h-[31rem] overflow-hidden bg-cinematic sm:min-h-[38rem]"
+      >
+        <div className="absolute inset-0 grid grid-cols-2 sm:grid-cols-4" aria-hidden="true">
+          {Array.from({ length: 4 }, (_, index) => (
+            <div
+              key={index}
+              className="border-r border-cinematic/10 bg-product-surface last:border-r-0"
+            />
+          ))}
         </div>
-        <Skeleton className="min-h-[28rem] rounded-none" />
+        <div className="absolute inset-0 bg-cinematic/70" />
+        <div className="luxury-container relative flex min-h-[31rem] flex-col items-center justify-center px-5 pb-16 pt-28 sm:min-h-[38rem]">
+          <Skeleton className="h-2 w-28 bg-cinematic-foreground/30 motion-reduce:animate-none" />
+          <Skeleton className="mt-7 h-12 w-[min(75vw,30rem)] bg-cinematic-foreground/30 sm:h-16 sm:w-[min(70vw,48rem)] motion-reduce:animate-none" />
+          <Skeleton className="mt-3 h-12 w-[min(60vw,22rem)] bg-cinematic-foreground/30 sm:hidden motion-reduce:animate-none" />
+          <Skeleton className="mt-7 h-4 w-[min(65vw,32rem)] bg-cinematic-foreground/25 motion-reduce:animate-none" />
+        </div>
+      </section>
+
+      <div className="border-b border-border" aria-hidden="true">
+        <div className="luxury-container flex h-16 items-center gap-8 overflow-hidden">
+          {Array.from({ length: 6 }, (_, index) => (
+            <Skeleton key={index} className="h-2 w-20 shrink-0 rounded-none motion-reduce:animate-none" />
+          ))}
+        </div>
       </div>
-      <div className="luxury-container grid grid-cols-2 gap-3 py-20 sm:gap-6 lg:grid-cols-4">
-        {Array.from({ length: 8 }, (_, index) => (
-          <Skeleton key={index} className="aspect-[4/5] rounded-none" />
-        ))}
-      </div>
+
+      <section className="luxury-container py-16 sm:py-20 lg:py-24" aria-hidden="true">
+        <Skeleton className="h-2 w-36 rounded-none motion-reduce:animate-none" />
+        <Skeleton className="mt-5 h-10 w-64 max-w-full rounded-none motion-reduce:animate-none" />
+        <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4">
+          {Array.from({ length: 8 }, (_, index) => (
+            <Skeleton key={index} className="aspect-[4/5] rounded-none motion-reduce:animate-none" />
+          ))}
+        </div>
+      </section>
     </main>
   );
 }
