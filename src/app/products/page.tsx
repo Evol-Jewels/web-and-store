@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { InfiniteProductGrid } from "@/components/storefront/infinite-product-grid";
 import { productCategories } from "@/lib/catalog";
 import { findProducts } from "@/server/catalog/catalog.repository";
+import { getCollectionDetails } from "@/server/catalog/catalog.service";
 
 export const dynamic = "force-dynamic";
 
@@ -32,10 +33,19 @@ export default async function ProductsPage({
   }
 
   const after = typeof afterParam === "string" ? afterParam : undefined;
-  const page = await findProducts(24, after);
+  const [page, sugarRush] = await Promise.all([
+    findProducts(24, after),
+    getCollectionDetails("sugar-rush-collection", 4),
+  ]);
+  const featuredProducts = sugarRush?.products
+    .filter(
+      (product) =>
+        !sugarRush.image || product.featuredImage?.url !== sugarRush.image.url,
+    )
+    .slice(0, 2);
 
   return (
-    <main>
+    <main className="overflow-x-clip">
       <section
         data-hero
         className="relative isolate min-h-[23rem] overflow-hidden bg-cinematic text-cinematic-foreground sm:min-h-[27rem]"
@@ -98,6 +108,14 @@ export default async function ProductsPage({
           key={after ?? "initial"}
           initialProducts={page.products}
           initialPageInfo={page.pageInfo}
+          featuredCollection={sugarRush && featuredProducts?.length === 2
+            ? {
+                handle: sugarRush.handle,
+                title: sugarRush.title,
+                image: sugarRush.image,
+                products: featuredProducts,
+              }
+            : undefined}
         />
       </section>
     </main>

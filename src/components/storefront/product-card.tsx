@@ -18,9 +18,11 @@ function formatProductTitle(title: string) {
 export function ProductCard({
   product,
   priority = false,
+  sizes = "(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw",
 }: {
   product: ProductCardData;
   priority?: boolean;
+  sizes?: string;
 }) {
   const { isWishlisted, toggleWishlist } = useStorefront();
   const saved = isWishlisted(product.id);
@@ -40,7 +42,7 @@ export function ProductCard({
                 alt={product.featuredImage.altText}
                 fill
                 priority={priority}
-                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                sizes={sizes}
                 className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.035] motion-reduce:transition-none"
               />
             ) : (

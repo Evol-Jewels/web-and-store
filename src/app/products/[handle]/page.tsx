@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 
+import { MoreProducts } from "@/components/storefront/more-products";
 import { ProductDetails } from "@/components/storefront/product-details";
 import { ProductPurchaseExperience } from "@/components/storefront/product-purchase-experience";
 import {
@@ -102,6 +104,10 @@ export default async function ProductPage({
           </p>
         </div>
       </section>
+
+      <Suspense fallback={null}>
+        <MoreProducts product={product} />
+      </Suspense>
     </main>
   );
 }

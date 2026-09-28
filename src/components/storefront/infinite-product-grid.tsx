@@ -6,6 +6,7 @@ import { activeFilterCount, availableFacets, emptyFilters, type CatalogFilters, 
 import type { ProductCardData, ProductConnection } from "@/types/product";
 
 import { CatalogFilterBar } from "./catalog-filter-bar";
+import { CollectionGridFeature, type CollectionGridFeatureData } from "./collection-grid-feature";
 import { ProductGrid } from "./product-grid";
 
 type CatalogSnapshot = {
@@ -15,10 +16,12 @@ type CatalogSnapshot = {
 
 export function InfiniteProductGrid({
   collectionHandle,
+  featuredCollection,
   initialPageInfo,
   initialProducts,
 }: {
   collectionHandle?: string;
+  featuredCollection?: CollectionGridFeatureData;
   initialPageInfo: ProductConnection["pageInfo"];
   initialProducts: ProductCardData[];
 }) {
@@ -99,6 +102,13 @@ export function InfiniteProductGrid({
   const readyProductIds = useMemo(() => new Set(snapshot?.readyProductIds ?? []), [snapshot]);
   const facets = useMemo(() => availableFacets(snapshot?.products ?? []), [snapshot]);
   const visibleProducts = hasFilters ? products : products.slice(0, visibleCount);
+  const productListing = featuredCollection && !hasFilters && visibleProducts.length >= 24 ? (
+    <>
+      <ProductGrid products={visibleProducts.slice(0, 24)} />
+      <CollectionGridFeature collection={featuredCollection} />
+      {visibleProducts.length > 24 ? <ProductGrid products={visibleProducts.slice(24)} prioritizeFirstRow={false} /> : null}
+    </>
+  ) : <ProductGrid products={visibleProducts} />;
   const resultCount = hasFilters ? filteredPage?.totalProducts ?? 0 : products.length;
   const readyCount = (snapshot?.products ?? []).filter((product) => readyProductIds.has(product.id)).length;
 
@@ -269,7 +279,7 @@ export function InfiniteProductGrid({
         <div className="min-h-56 border-y border-border py-20 text-center text-xs uppercase tracking-[0.18em] text-muted-foreground" aria-live="polite">Finding matching pieces…</div>
       ) : hasFilters && filterState === "error" ? (
         <div className="min-h-56 border-y border-border py-20 text-center text-sm text-muted-foreground" role="alert">Unable to filter pieces. <button type="button" onClick={() => { setFilterState("loading"); setFilterRetryKey((current) => current + 1); }} className="underline underline-offset-4">Try again</button></div>
-      ) : visibleProducts.length ? <ProductGrid products={visibleProducts} /> : (
+      ) : visibleProducts.length ? productListing : (
         <div className="border-y border-border py-20 text-center">
           <p className="font-heading text-3xl">No pieces found</p>
           <p className="mt-2 text-sm text-muted-foreground">Try a different combination of filters.</p>
