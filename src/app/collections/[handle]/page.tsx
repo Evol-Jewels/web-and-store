@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { CollectionHero } from "@/components/storefront/collection-hero";
 import { InfiniteProductGrid } from "@/components/storefront/infinite-product-grid";
 import { productCategories } from "@/lib/catalog";
-import { toExcerpt } from "@/lib/text";
 import { getCollectionDetails } from "@/server/catalog/catalog.service";
 
 export const dynamic = "force-dynamic";
@@ -43,53 +42,13 @@ export default async function CollectionPage({
 
   if (!collection) notFound();
 
-  const description = toExcerpt(
-    collection.description ??
-      "A considered edit of lab-grown diamonds and hallmarked gold, shaped for modern life.",
-    280,
-  );
+  const heroCollection = after
+    ? await getCollectionDetails(handle, 4)
+    : collection;
 
   return (
     <main>
-      <section
-        data-hero
-        className="bg-cinematic pt-20 text-cinematic-foreground"
-      >
-        <div className="mx-auto grid min-h-[32rem] max-w-[100rem] lg:grid-cols-[0.9fr_1.1fr]">
-          <div className="flex items-center px-6 py-20 sm:px-12 lg:px-16 xl:px-24">
-            <div className="max-w-xl">
-              <p className="text-[0.64rem] font-medium uppercase tracking-[0.22em] text-cinematic-foreground/65">
-                Evol collection
-              </p>
-              <h1 className="mt-6 font-heading text-5xl leading-[0.96] tracking-[-0.04em] sm:text-7xl">
-                {collection.title}
-              </h1>
-              <p className="mt-7 max-w-lg text-sm leading-7 text-cinematic-foreground/75 sm:text-base">
-                {description}
-              </p>
-              <p className="mt-8 text-[0.62rem] uppercase tracking-[0.2em] text-cinematic-foreground/55">
-                {collection.productsCount.toLocaleString("en-IN")} pieces
-              </p>
-            </div>
-          </div>
-          <div className="relative min-h-[26rem] overflow-hidden bg-product-surface sm:min-h-[34rem]">
-            {collection.image ? (
-              <Image
-                src={collection.image.url}
-                alt={collection.image.altText}
-                fill
-                priority
-                sizes="(max-width: 1024px) 100vw, 55vw"
-                className="object-cover"
-              />
-            ) : (
-              <div className="absolute inset-0 grid place-items-center text-xs uppercase tracking-[0.24em] text-muted-foreground">
-                Evol
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
+      <CollectionHero collection={collection} products={heroCollection?.products ?? []} />
 
       <nav aria-label="Product categories" className="border-b border-border">
         <div className="luxury-container flex gap-8 overflow-x-auto py-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
