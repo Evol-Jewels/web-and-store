@@ -189,7 +189,7 @@ export function CartSheet({ children }: { children: React.ReactNode }) {
                 </p>
               ) : null}
 
-              <div className="mt-6 flex items-center justify-between border-t border-border pt-5">
+              <div className="mt-6 flex items-center justify-between">
                 <div>
                   <p className="text-[0.64rem] uppercase tracking-[0.18em] text-muted-foreground">
                     Subtotal

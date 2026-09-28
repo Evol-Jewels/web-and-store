@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useSyncExternalStore } from "react";
 
 import type { Cart, CartResponse } from "@/lib/shopify/cart/types";
 import type { ProductCardData } from "@/types/product";
@@ -22,9 +22,50 @@ type StorefrontContextValue = {
 };
 
 const StorefrontContext = createContext<StorefrontContextValue | null>(null);
+const WISHLIST_STORAGE_KEY = "evol-wishlist";
+const WISHLIST_CHANGE_EVENT = "evol-wishlist-change";
+
+function readWishlist(value: string | null): ProductCardData[] {
+  try {
+    const saved: unknown = JSON.parse(value ?? "[]");
+
+    if (!Array.isArray(saved)) return [];
+
+    return saved.filter(
+      (item): item is ProductCardData =>
+        item !== null &&
+        typeof item === "object" &&
+        typeof item.id === "string" &&
+        typeof item.handle === "string" &&
+        typeof item.title === "string" &&
+        typeof item.priceRange?.min?.amount === "string" &&
+        typeof item.priceRange?.min?.currencyCode === "string",
+    );
+  } catch {
+    return [];
+  }
+}
+
+function getWishlistSnapshot() {
+  try {
+    return localStorage.getItem(WISHLIST_STORAGE_KEY);
+  } catch {
+    return null;
+  }
+}
+
+function subscribeToWishlist(onChange: () => void) {
+  window.addEventListener("storage", onChange);
+  window.addEventListener(WISHLIST_CHANGE_EVENT, onChange);
+
+  return () => {
+    window.removeEventListener("storage", onChange);
+    window.removeEventListener(WISHLIST_CHANGE_EVENT, onChange);
+  };
+}
 
 export function StorefrontProvider({ children }: { children: React.ReactNode }) {
-  const [wishlist, setWishlist] = useState<ProductCardData[]>([]);
+  const wishlist = readWishlist(useSyncExternalStore(subscribeToWishlist, getWishlistSnapshot, () => null));
   const [cart, setCart] = useState<Cart | null>(null);
   const [cartOpen, setCartOpen] = useState(false);
   const [cartPending, setCartPending] = useState(false);
@@ -35,11 +76,16 @@ export function StorefrontProvider({ children }: { children: React.ReactNode }) 
   }
 
   function toggleWishlist(product: ProductCardData) {
-    setWishlist((current) =>
-      current.some((item) => item.id === product.id)
-        ? current.filter((item) => item.id !== product.id)
-        : [...current, product],
-    );
+    const updated = wishlist.some((item) => item.id === product.id)
+      ? wishlist.filter((item) => item.id !== product.id)
+      : [...wishlist, product];
+
+    try {
+      localStorage.setItem(WISHLIST_STORAGE_KEY, JSON.stringify(updated));
+      window.dispatchEvent(new Event(WISHLIST_CHANGE_EVENT));
+    } catch {
+      return;
+    }
   }
 
   async function cartRequest(url: string, init?: RequestInit) {

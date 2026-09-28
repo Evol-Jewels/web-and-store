@@ -26,7 +26,7 @@ export function CollectionCard({
               fill
               priority={priority}
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-              className="object-contain p-[9%] transition-transform duration-1000 ease-out group-hover:scale-[1.025] motion-reduce:transition-none"
+              className="object-cover transition-transform duration-1000 ease-out group-hover:scale-[1.025] motion-reduce:transition-none"
             />
           ) : (
             <div className="absolute inset-0 grid place-items-center text-xs uppercase tracking-[0.24em] text-muted-foreground">
