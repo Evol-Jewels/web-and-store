@@ -102,7 +102,7 @@ export function InfiniteProductGrid({
   const readyProductIds = useMemo(() => new Set(snapshot?.readyProductIds ?? []), [snapshot]);
   const facets = useMemo(() => availableFacets(snapshot?.products ?? []), [snapshot]);
   const visibleProducts = hasFilters ? products : products.slice(0, visibleCount);
-  const productListing = featuredCollection && !hasFilters && visibleProducts.length >= 24 ? (
+  const productListing = featuredCollection && visibleProducts.length >= 24 ? (
     <>
       <ProductGrid products={visibleProducts.slice(0, 24)} />
       <CollectionGridFeature collection={featuredCollection} />

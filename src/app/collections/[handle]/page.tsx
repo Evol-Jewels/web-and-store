@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import { CollectionHero } from "@/components/storefront/collection-hero";
 import { InfiniteProductGrid } from "@/components/storefront/infinite-product-grid";
 import { productCategories } from "@/lib/catalog";
-import { getCollectionDetails } from "@/server/catalog/catalog.service";
+import { getCollectionDetails, getSugarRushFeature } from "@/server/catalog/catalog.service";
 
 export const dynamic = "force-dynamic";
 
@@ -38,7 +38,10 @@ export default async function CollectionPage({
     searchParams,
   ]);
   const after = typeof afterParam === "string" ? afterParam : undefined;
-  const collection = await getCollectionDetails(handle, 24, after);
+  const [collection, featuredCollection] = await Promise.all([
+    getCollectionDetails(handle, 24, after),
+    getSugarRushFeature(),
+  ]);
 
   if (!collection) notFound();
 
@@ -107,6 +110,7 @@ export default async function CollectionPage({
         <InfiniteProductGrid
           key={`${collection.handle}:${after ?? "initial"}`}
           collectionHandle={collection.handle}
+          featuredCollection={featuredCollection}
           initialProducts={collection.products}
           initialPageInfo={collection.pageInfo}
         />

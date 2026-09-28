@@ -9,6 +9,12 @@ import {
   findProductByHandle,
 } from "./catalog.repository";
 
+const internalCollectionTitle = "Smart Products Filter Index - Do not delete";
+
+function isPublicCollection(collection: CollectionCardData) {
+  return collection.title.trim() !== internalCollectionTitle;
+}
+
 export async function listFeaturedProducts() {
   return findProducts();
 }
@@ -22,7 +28,7 @@ export async function listFeaturedCollections(
 ): Promise<CollectionCardData[]> {
   try {
     const { collections } = await findCollections(limit);
-    return collections;
+    return collections.filter(isPublicCollection);
   } catch {
     return [];
   }
@@ -35,7 +41,7 @@ export async function listAllCollections(): Promise<CollectionCardData[]> {
 
   do {
     const page = await findCollections(48, after);
-    collections.push(...page.collections);
+    collections.push(...page.collections.filter(isPublicCollection));
 
     const nextCursor = page.pageInfo.hasNextPage
       ? page.pageInfo.endCursor ?? undefined
@@ -59,4 +65,16 @@ export async function getCollectionDetails(
   } catch {
     return null;
   }
+}
+
+export async function getSugarRushFeature() {
+  const collection = await getCollectionDetails("sugar-rush-collection", 2);
+
+  if (!collection || collection.products.length < 2) return undefined;
+
+  return {
+    handle: collection.handle,
+    title: collection.title,
+    products: collection.products,
+  };
 }
