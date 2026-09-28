@@ -89,7 +89,7 @@ export default async function CollectionPage({
         className="luxury-container py-16 sm:py-20 lg:py-24"
         aria-labelledby="collection-products-title"
       >
-        <div className="mb-10 flex items-end justify-between gap-6 border-b border-border pb-5 sm:mb-14">
+        <div className="flex items-end justify-between gap-6 pb-5">
           <div>
             <p className="eyebrow">Browse the collection</p>
             <h2
