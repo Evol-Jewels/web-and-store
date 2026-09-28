@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 import { CART_COOKIE, cartCookieOptions } from "@/lib/shopify/cart/cookie";
+import { MAX_BAG_ITEMS } from "@/lib/shopify/cart/limits";
 import {
   addCartLine,
   createCart,
@@ -66,6 +67,12 @@ export async function POST(request: Request) {
     const cartId = cookieStore.get(CART_COOKIE)?.value;
     const ip = buyerIp(request);
     const existingCart = cartId ? await getCart(cartId, ip) : null;
+    if ((existingCart?.totalQuantity ?? 0) + (body.quantity as number) > MAX_BAG_ITEMS) {
+      return NextResponse.json(
+        { error: `Your bag can hold up to ${MAX_BAG_ITEMS} pieces.` },
+        { status: 400 },
+      );
+    }
     const result = existingCart
       ? await addCartLine(existingCart.id, body.merchandiseId, body.quantity as number, ip)
       : await createCart(body.merchandiseId, body.quantity as number, ip);
@@ -87,6 +94,18 @@ export async function PATCH(request: Request) {
 
     if (!cartId || typeof body.lineId !== "string" || !validQuantity(body.quantity)) {
       return NextResponse.json({ error: "The shopping bag update is invalid." }, { status: 400 });
+    }
+
+    const cart = await getCart(cartId, buyerIp(request));
+    const line = cart?.lines.nodes.find(({ id }) => id === body.lineId);
+    if (!cart || !line) {
+      return NextResponse.json({ error: "The shopping bag item was not found." }, { status: 400 });
+    }
+    if (cart.totalQuantity - line.quantity + (body.quantity as number) > MAX_BAG_ITEMS) {
+      return NextResponse.json(
+        { error: `Your bag can hold up to ${MAX_BAG_ITEMS} pieces.` },
+        { status: 400 },
+      );
     }
 
     const result = await updateCartLine(
