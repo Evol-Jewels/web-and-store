@@ -1,57 +1,45 @@
+import { ArrowDown, ArrowUpRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
-import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import styles from "./home-intro.module.css";
 
 export function HomeHero() {
   return (
-    <section
-      data-hero
-      className="relative isolate flex min-h-svh items-end overflow-hidden bg-cinematic text-white sm:items-center"
-    >
+    <section data-hero className={styles.hero} aria-labelledby="home-title">
       <Image
-        src="/images/home/hero-campaign.jpg"
-        alt="A woman wearing an Evol lab-grown diamond tennis necklace and earrings"
+        src="/images/home/hero-meadow.png"
+        alt="Wildflowers on a sunlit hill beneath a blue, cloud-filled sky"
         fill
-        priority
-        sizes="100vw"
-        className="home-hero-image object-cover object-[72%_center]"
+        preload
+        sizes="(max-aspect-ratio: 1475/1067) 139vh, 100vw"
+        className={styles.heroImage}
       />
-      <div className="absolute inset-0 bg-gradient-to-t from-foreground/75 via-foreground/10 to-foreground/20 sm:bg-gradient-to-r sm:from-foreground/70 sm:via-foreground/15 sm:to-transparent" />
-
-      <div className="luxury-container relative pb-20 pt-28 sm:py-0">
-        <div className="max-w-xl">
-          <p className="home-reveal text-[0.64rem] font-medium uppercase tracking-[0.28em] text-white/70">
-            Certified lab-grown diamonds
-          </p>
-          <h1 className="home-reveal home-reveal-delay mt-6 font-heading text-6xl leading-[0.92] tracking-[-0.04em] sm:text-7xl lg:text-[7.5rem]">
-            A light of
-            <br />
-            your own.
-          </h1>
-          <p className="home-reveal home-reveal-delay-2 mt-8 max-w-md text-sm leading-7 text-white/75 sm:text-base">
-            Lab-grown diamonds, shaped by hand in India for a lifetime of wear.
-          </p>
-          <div className="home-reveal home-reveal-delay-2 mt-10 flex flex-wrap items-center gap-x-8 gap-y-4">
-            <Link
-              href="/products"
-              className={cn(
-                buttonVariants(),
-                "h-12 rounded-md bg-white px-8 text-[0.64rem] uppercase tracking-[0.18em] text-foreground hover:bg-white/85",
-              )}
-            >
-              Explore the collection
-            </Link>
-
-            <Link
-              href="#collections"
-              className="link-underline text-[0.64rem] uppercase tracking-[0.18em] text-white/85"
-            >
-              Discover the story
-            </Link>
-          </div>
-        </div>
+      <div className={styles.heroTop}>
+        <Link href="/products" className={styles.textLink}>
+          Explore the collection <ArrowUpRight size={15} strokeWidth={1.25} />
+        </Link>
+      </div>
+      <div className={styles.wordmark}>
+        <h1 id="home-title">Evol Jewels</h1>
+      </div>
+      <div className={`${styles.wordmark} ${styles.paperWordmark}`} aria-hidden="true">
+        <span>Evol Jewels</span>
+      </div>
+      <Image
+        src="/images/home/hero-meadow-foreground.png"
+        alt=""
+        aria-hidden="true"
+        fill
+        preload
+        sizes="(max-aspect-ratio: 1475/1067) 139vh, 100vw"
+        className={styles.heroForeground}
+      />
+      <div className={styles.heroBottom}>
+        <a href="#collections" data-discover className={styles.scrollCue}>
+          <span>Scroll to discover</span>
+          <ArrowDown size={20} strokeWidth={1} />
+        </a>
       </div>
     </section>
   );

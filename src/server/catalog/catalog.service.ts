@@ -9,8 +9,8 @@ import {
   findProductByHandle,
 } from "./catalog.repository";
 
-export async function listFeaturedProducts() {
-  return findProducts();
+export async function listFeaturedProducts(limit = 24) {
+  return findProducts(limit);
 }
 
 export async function getProductDetails(handle: string) {
