@@ -31,7 +31,11 @@ export function ProductInformation({
         productCard={productCard}
       />
 
-      <ProductActionActions className="mt-6" />
+      <ProductActionActions
+        className="mt-6"
+        productTitle={product.title}
+        productHandle={product.handle}
+      />
     </aside>
   );
 }
