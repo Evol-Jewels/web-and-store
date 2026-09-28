@@ -22,14 +22,20 @@ const featuredTypes = ["rings", "necklaces", "earrings", "bracelets"];
 
 function selectFeaturedProducts(products: ProductCardData[]) {
   const selected = featuredTypes
-    .map((type) =>
-      products.find((product) => product.productType?.toLowerCase() === type),
-    )
+    .map((type) => {
+      const matchingProducts = products.filter(
+        (product) => product.productType?.toLowerCase() === type,
+      );
+
+      return matchingProducts[2] ?? matchingProducts.at(-1);
+    })
     .filter((product): product is ProductCardData => Boolean(product));
 
   return selected.length === featuredTypes.length
     ? selected
-    : products.slice(0, 4);
+    : products.length >= 6
+      ? products.slice(2, 6)
+      : products.slice(0, 4);
 }
 
 export default async function Home() {
