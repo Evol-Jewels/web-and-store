@@ -3,10 +3,8 @@
 import { LoaderCircle, Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
 
 import { Button, buttonVariants } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Sheet,
   SheetContent,
@@ -30,9 +28,7 @@ export function CartSheet({ children }: { children: React.ReactNode }) {
     refreshCart,
     updateCartQuantity,
     removeFromCart,
-    applyDiscountCode,
   } = useStorefront();
-  const [discountCode, setDiscountCode] = useState("");
 
   function onOpenChange(open: boolean) {
     setCartOpen(open);
@@ -186,41 +182,6 @@ export function CartSheet({ children }: { children: React.ReactNode }) {
             </div>
 
             <div className="border-t border-border px-7 py-6 sm:px-10">
-              <form
-                className="flex gap-2"
-                onSubmit={(event) => {
-                  event.preventDefault();
-                  void applyDiscountCode(discountCode);
-                }}
-              >
-                <Input
-                  value={discountCode}
-                  onChange={(event) => setDiscountCode(event.target.value)}
-                  placeholder="Discount code"
-                  aria-label="Discount code"
-                  className="h-10 rounded-none"
-                />
-                <Button
-                  type="submit"
-                  variant="outline"
-                  disabled={cartPending || !discountCode.trim()}
-                  className="h-10 rounded-none px-5 text-[0.62rem] uppercase tracking-[0.16em]"
-                >
-                  Apply
-                </Button>
-              </form>
-
-              {populatedCart.discountCodes.length ? (
-                <p className="mt-3 text-xs text-muted-foreground">
-                  {populatedCart.discountCodes
-                    .map(
-                      ({ code, applicable }) =>
-                        `${code}${applicable ? " applied" : " could not be applied"}`,
-                    )
-                    .join(" · ")}
-                </p>
-              ) : null}
-
               {cartMessage ? (
                 <p role="status" className="mt-3 text-xs leading-5 text-destructive">
                   {cartMessage}

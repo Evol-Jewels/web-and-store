@@ -12,8 +12,10 @@ import {
   availableInventoryForVariant,
   variantMatchesSelections,
 } from "@/lib/inventory-availability";
+import { Heart, ShoppingBag } from "lucide-react";
 import type {
   InventoryProduct,
+  ProductCardData,
   ProductOption,
   ProductVariant,
 } from "@/types/product";
@@ -41,6 +43,7 @@ export function ProductOptions({
   inventoryProducts,
   selections,
   onSelectOption,
+  productCard,
 }: {
   className?: string;
   options: ProductOption[];
@@ -48,8 +51,11 @@ export function ProductOptions({
   inventoryProducts: InventoryProduct[];
   selections: Record<string, string>;
   onSelectOption: (name: string, value: string) => void;
+  productCard: ProductCardData | null;
 }) {
-  const { addToCart, cartPending, cartMessage } = useStorefront();
+  const { addToCart, cartPending, cartMessage, isWishlisted, toggleWishlist } =
+    useStorefront();
+  const saved = productCard ? isWishlisted(productCard.id) : false;
   const selectedVariant = variants.find((variant) =>
     variantMatchesSelections(variant, selections),
   );
@@ -206,29 +212,49 @@ export function ProductOptions({
       ) : null}
 
       <div>
-        <Button
-          type="button"
-          variant="luxury"
-          size="lg"
-          disabled={!available || cartPending}
-          onClick={() => selectedVariant && addToCart(selectedVariant.id)}
-          className="h-13 w-full rounded-none"
-        >
-          {cartPending
-            ? "Adding to bag"
-            : available
-              ? "Add to bag"
-              : "Currently unavailable"}
-        </Button>
+        <div className="flex gap-3">
+          <Button
+            type="button"
+            variant="luxury"
+            size="lg"
+            disabled={!available || cartPending}
+            onClick={() => selectedVariant && addToCart(selectedVariant.id)}
+            className="h-13 flex-1 rounded-none gap-2.5"
+          >
+            <ShoppingBag className="size-3.5 shrink-0" strokeWidth={1.25} />
+            {cartPending
+              ? "Adding to bag"
+              : available
+                ? "Add to bag"
+                : "Currently unavailable"}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            disabled={!productCard}
+            onClick={() => productCard && toggleWishlist(productCard)}
+            aria-label={
+              productCard
+                ? saved
+                  ? `Remove ${productCard.title} from wishlist`
+                  : `Add ${productCard.title} to wishlist`
+                : "Add to wishlist"
+            }
+            aria-pressed={saved}
+            className="size-13 shrink-0 rounded-none"
+          >
+            <Heart
+              className={saved ? "fill-current" : "fill-transparent"}
+              strokeWidth={1.25}
+            />
+          </Button>
+        </div>
         {cartMessage ? (
           <p role="status" className="mt-3 text-center text-xs leading-5 text-destructive">
             {cartMessage}
           </p>
-        ) : (
-          <p className="mt-3 text-center text-xs leading-5 text-muted-foreground">
-            Secure checkout powered by Shopify.
-          </p>
-        )}
+        ) : null}
       </div>
     </div>
   );

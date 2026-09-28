@@ -1,13 +1,17 @@
 import type { ProductDetail } from "@/types/product";
+import type { ProductCardData } from "@/types/product";
 
+import { ProductActionActions } from "./product-action-actions";
 import { ProductOptions } from "./product-options";
 
 export function ProductInformation({
   product,
+  productCard,
   selections,
   onSelectOption,
 }: {
   product: ProductDetail;
+  productCard: ProductCardData | null;
   selections: Record<string, string>;
   onSelectOption: (name: string, value: string) => void;
 }) {
@@ -24,16 +28,10 @@ export function ProductInformation({
         inventoryProducts={product.inventoryProducts}
         selections={selections}
         onSelectOption={onSelectOption}
+        productCard={productCard}
       />
 
-      <div className="mt-6 border-y border-border py-5 text-center">
-        <p className="text-[0.65rem] uppercase tracking-[0.18em]">
-          Private appointments
-        </p>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Discover this piece with a jewellery specialist.
-        </p>
-      </div>
+      <ProductActionActions className="mt-6" />
     </aside>
   );
 }
