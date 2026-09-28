@@ -10,14 +10,7 @@ export default function CollectionLoading() {
         data-hero
         className="relative isolate min-h-[31rem] overflow-hidden bg-cinematic sm:min-h-[38rem]"
       >
-        <div className="absolute inset-0 grid grid-cols-2 sm:grid-cols-4" aria-hidden="true">
-          {Array.from({ length: 4 }, (_, index) => (
-            <div
-              key={index}
-              className="border-r border-cinematic/10 bg-product-surface last:border-r-0"
-            />
-          ))}
-        </div>
+        <div className="absolute inset-0 bg-product-surface" aria-hidden="true" />
         <div className="absolute inset-0 bg-cinematic/70" />
         <div className="luxury-container relative flex min-h-[31rem] flex-col items-center justify-center px-5 pb-16 pt-28 sm:min-h-[38rem]">
           <Skeleton className="h-2 w-28 bg-cinematic-foreground/30 motion-reduce:animate-none" />
