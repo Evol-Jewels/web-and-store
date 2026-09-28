@@ -14,6 +14,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { formatMoney } from "@/lib/format";
+import { MAX_BAG_ITEMS } from "@/lib/shopify/cart/limits";
 import { cn } from "@/lib/utils";
 
 import { useStorefront } from "./storefront-provider";
@@ -160,7 +161,7 @@ export function CartSheet({ children }: { children: React.ReactNode }) {
                               type="button"
                               variant="ghost"
                               size="icon-sm"
-                              disabled={cartPending || line.quantity >= 99}
+                              disabled={cartPending || populatedCart.totalQuantity >= MAX_BAG_ITEMS}
                               onClick={() =>
                                 updateCartQuantity(line.id, line.quantity + 1)
                               }
@@ -202,6 +203,10 @@ export function CartSheet({ children }: { children: React.ReactNode }) {
                 </p>
               </div>
 
+              <p className="mt-4 text-xs leading-5 text-muted-foreground">
+                Choose up to {MAX_BAG_ITEMS} pieces for your bag. Purchase them or request to try them at home.
+              </p>
+
               <Link
                 href="/api/cart/checkout"
                 aria-disabled={cartPending}
@@ -212,6 +217,18 @@ export function CartSheet({ children }: { children: React.ReactNode }) {
                 )}
               >
                 Checkout securely
+              </Link>
+              <Link
+                href="/try-at-home"
+                onClick={() => setCartOpen(false)}
+                aria-disabled={cartPending}
+                className={cn(
+                  buttonVariants({ variant: "outline" }),
+                  "mt-3 h-13 w-full rounded-none text-[0.68rem] uppercase tracking-[0.16em]",
+                  cartPending && "pointer-events-none opacity-50",
+                )}
+              >
+                Request Try at Home
               </Link>
             </div>
           </>
