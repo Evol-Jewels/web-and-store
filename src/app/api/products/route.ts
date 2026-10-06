@@ -2,6 +2,17 @@ import { findProducts } from "@/server/catalog/catalog.repository";
 import { getCollectionDetails } from "@/server/catalog/catalog.service";
 
 export async function GET(request: Request) {
+  try {
+    return await loadProducts(request);
+  } catch {
+    return Response.json({ message: "Unable to load products" }, {
+      status: 503,
+      headers: { "Cache-Control": "no-store" },
+    });
+  }
+}
+
+async function loadProducts(request: Request) {
   const searchParams = new URL(request.url).searchParams;
   const after = searchParams.get("after") ?? undefined;
   const collectionHandle = searchParams.get("collection");

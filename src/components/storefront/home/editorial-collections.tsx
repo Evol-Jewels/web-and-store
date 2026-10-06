@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { Reveal } from "@/components/storefront/reveal";
-import { listAllCollections } from "@/server/catalog/catalog.service";
+import { listOptionalCollections } from "@/server/catalog/catalog.service";
 
 type Tile = {
   name: string;
@@ -57,7 +57,7 @@ const tiles: Tile[] = [
 ];
 
 export async function EditorialCollections() {
-  const collections = await listAllCollections();
+  const collections = await listOptionalCollections();
   const handles = new Set(collections.map((collection) => collection.handle));
   const visibleTiles = tiles.filter((tile) => handles.has(tile.handle));
   if (!visibleTiles.length) return null;

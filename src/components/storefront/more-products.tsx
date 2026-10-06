@@ -6,7 +6,7 @@ import type { ProductDetail } from "@/types/product";
 
 async function getRecommendations(product: ProductDetail) {
   for (const { handle } of product.collections) {
-    const collection = await getCollectionDetails(handle, 5);
+    const collection = await getCollectionDetails(handle, 5).catch(() => null);
     if (!collection) continue;
 
     const products = collection.products

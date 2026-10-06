@@ -22,7 +22,9 @@ function load(relativePath, dependencies) {
   }).outputText;
   const exports = {};
   vm.runInNewContext(compiled, {
-    exports, Request, Response, URL, URLSearchParams, Set, Promise,
+    exports, Request, Response, URL, URLSearchParams, Set, Promise, AbortController,
+    process: { env: {} }, fetch: dependencies.fetch,
+    setTimeout: dependencies.setTimeout ?? setTimeout,
     require(name) {
       if (name === "server-only") return {};
       if (name === "react") return { cache: (fn) => fn, ...dependencies.react };
@@ -42,6 +44,7 @@ const copy = (value) => JSON.parse(JSON.stringify(value));
 test("collection visibility includes live collections without images and excludes internal and unpublished memberships", async () => {
   let detailReads = 0;
   const service = load("src/server/catalog/catalog.service.ts", {
+    "@/api/catalog.client": { CatalogApiError },
     "@/lib/catalog": { productCategories: [{ slug: "rings" }, { slug: "hidden" }] },
     "./catalog.repository": {
       findCollections: async (first, after) => ({
@@ -64,6 +67,76 @@ test("collection visibility includes live collections without images and exclude
   assert.deepEqual(copy((await service.getProductDetails("product")).collections), [publicCollection]);
 });
 
+test("catalog GET retries a transient gateway error once without caching results", async () => {
+  const statuses = [502, 200, 404, 503, 503];
+  const calls = [];
+  const client = load("src/api/catalog.client.ts", {
+    setTimeout: (callback) => callback(),
+    fetch: async (url, options) => {
+      calls.push({ url, options });
+      const status = statuses.shift();
+      return Response.json({ collections: [], pageInfo: {} }, { status });
+    },
+  });
+  assert.deepEqual(copy((await client.getCollections()).collections), []);
+  assert.equal(calls.length, 2);
+  assert.ok(calls[1].options.signal instanceof AbortSignal);
+  await assert.rejects(client.getCollections(), { status: 404 });
+  assert.equal(calls.length, 3);
+  await assert.rejects(client.getCollections(), { status: 503 });
+  assert.equal(calls.length, 5);
+  assert.ok(calls.every((call) => call.options.cache === "no-store"));
+});
+
+test("simultaneous collection checks share only the in-flight request and recheck publication afterwards", async () => {
+  let reads = 0;
+  let resolvePage;
+  const service = load("src/server/catalog/catalog.service.ts", {
+    "@/api/catalog.client": { CatalogApiError },
+    "@/lib/catalog": { productCategories: [] },
+    "./catalog.repository": {
+      findCollections: () => {
+        reads++;
+        return new Promise((resolve) => { resolvePage = resolve; });
+      },
+    },
+  });
+  const first = service.listAllCollections();
+  const second = service.listAllCollections();
+  assert.equal(reads, 1);
+  resolvePage({ collections: [publicCollection], pageInfo: {} });
+  assert.deepEqual(copy(await first), [publicCollection]);
+  assert.deepEqual(copy(await second), [publicCollection]);
+  const next = service.listAllCollections();
+  assert.equal(reads, 2);
+  resolvePage({ collections: [], pageInfo: {} });
+  assert.deepEqual(copy(await next), []);
+});
+
+test("collection outages hide optional links but remain errors for required collection pages", async () => {
+  let failing = true;
+  const service = load("src/server/catalog/catalog.service.ts", {
+    "@/api/catalog.client": { CatalogApiError },
+    "@/lib/catalog": { productCategories: [{ slug: "rings" }] },
+    "./catalog.repository": {
+      findCollections: async () => {
+        if (failing) throw new CatalogApiError("Unavailable", 502);
+        return { collections: [publicCollection], pageInfo: {} };
+      },
+      findProductByHandle: async () => ({ ...publicProduct, collections: [publicCollection] }),
+      findCollectionByHandle: async () => publicCollection,
+    },
+  });
+  assert.deepEqual(copy(await service.listPublicCategories()), []);
+  assert.deepEqual(copy(await service.listOptionalCollections()), []);
+  assert.deepEqual(copy((await service.getProductDetails("public")).collections), []);
+  assert.equal(await service.getSugarRushFeature(), undefined);
+  await assert.rejects(service.getCollectionDetails("rings"), { status: 502 });
+  failing = false;
+  assert.deepEqual(copy(await service.listPublicCategories()), [{ slug: "rings" }]);
+  assert.equal((await service.getCollectionDetails("rings")).handle, "rings");
+});
+
 test("fresh product checks discard cached hidden results and propagate outages", async () => {
   const service = load("src/server/catalog/product-visibility.ts", {
     "@/api/catalog.client": { CatalogApiError },
@@ -80,6 +153,22 @@ test("fresh product checks discard cached hidden results and propagate outages",
   assert.deepEqual(copy(saved.map((product) => product.handle)), ["public"]);
   assert.equal("variants" in saved[0], false);
   await assert.rejects(service.getPublicProduct("outage"), { status: 503 });
+});
+
+test("collection product API returns an outage response instead of misreporting not found", async () => {
+  const route = load("src/app/api/products/route.ts", {
+    "@/server/catalog/catalog.repository": {},
+    "@/server/catalog/catalog.service": {
+      getCollectionDetails: async (handle) => {
+        if (handle === "hidden") return null;
+        throw new CatalogApiError("Unavailable", 502);
+      },
+    },
+  });
+  assert.equal((await route.GET(new Request("http://localhost/api?collection=hidden"))).status, 404);
+  const response = await route.GET(new Request("http://localhost/api?collection=rings"));
+  assert.equal(response.status, 503);
+  assert.equal(response.headers.get("cache-control"), "no-store");
 });
 
 test("filtered requests reject hidden collection and ready-to-ship shortcuts before loading products", async () => {
