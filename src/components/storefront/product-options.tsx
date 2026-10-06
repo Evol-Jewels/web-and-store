@@ -218,7 +218,7 @@ export function ProductOptions({
             variant="luxury"
             size="lg"
             disabled={!available || cartPending}
-            onClick={() => selectedVariant && addToCart(selectedVariant.id)}
+            onClick={() => selectedVariant && productCard && addToCart(selectedVariant.id, productCard.handle)}
             className="h-13 flex-1 rounded-none gap-2.5"
           >
             <ShoppingBag className="size-3.5 shrink-0" strokeWidth={1.25} />

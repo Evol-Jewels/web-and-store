@@ -44,7 +44,7 @@ export function ProductActionActions({
             aria-disabled={tryAtHomeDisabled}
             aria-describedby={unavailableReason ? "try-at-home-tooltip" : undefined}
             onClick={() => {
-              if (!tryAtHomeDisabled && variantId) void addToCart(variantId);
+              if (!tryAtHomeDisabled && variantId) void addToCart(variantId, productHandle);
             }}
             aria-label="Add selected piece to bag for Try at Home"
           >

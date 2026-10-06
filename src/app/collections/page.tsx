@@ -4,8 +4,7 @@ import Link from "next/link";
 
 import { CollectionCard } from "@/components/storefront/collection-card";
 import { Reveal } from "@/components/storefront/reveal";
-import { productCategories } from "@/lib/catalog";
-import { listAllCollections } from "@/server/catalog/catalog.service";
+import { listAllCollections, listPublicCategories } from "@/server/catalog/catalog.service";
 
 export const dynamic = "force-dynamic";
 
@@ -16,7 +15,8 @@ export const metadata: Metadata = {
 };
 
 export default async function CollectionsPage() {
-  const collections = (await listAllCollections()).toSorted((left, right) =>
+  const categories = await listPublicCategories();
+  const collections = (await listAllCollections()).filter((collection) => collection.image && collection.productsCount > 0).toSorted((left, right) =>
     left.title.localeCompare(right.title, "en-IN"),
   );
 
@@ -66,7 +66,7 @@ export default async function CollectionsPage() {
         </Reveal>
 
         <div className="mt-12 grid grid-cols-2 gap-px bg-border lg:grid-cols-5">
-          {productCategories.map((category) => (
+          {categories.map((category) => (
             <Link
               key={category.slug}
               href={"/collections/" + category.slug}

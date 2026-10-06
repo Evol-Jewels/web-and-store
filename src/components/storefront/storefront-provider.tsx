@@ -15,7 +15,7 @@ type StorefrontContextValue = {
   cartPending: boolean;
   cartMessage: string | null;
   refreshCart: () => Promise<void>;
-  addToCart: (merchandiseId: string, quantity?: number) => Promise<boolean>;
+  addToCart: (merchandiseId: string, productHandle: string, quantity?: number) => Promise<boolean>;
   updateCartQuantity: (lineId: string, quantity: number) => Promise<void>;
   removeFromCart: (lineId: string) => Promise<void>;
   applyDiscountCode: (code: string) => Promise<void>;
@@ -118,6 +118,7 @@ export function StorefrontProvider({ children }: { children: React.ReactNode }) 
   }
 
   async function refreshCart() {
+    setCart(null);
     setCartPending(true);
     try {
       await cartRequest("/api/cart");
@@ -130,13 +131,13 @@ export function StorefrontProvider({ children }: { children: React.ReactNode }) 
     }
   }
 
-  async function addToCart(merchandiseId: string, quantity = 1) {
+  async function addToCart(merchandiseId: string, productHandle: string, quantity = 1) {
     try {
       await runCartMutation(() =>
         cartRequest("/api/cart", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ merchandiseId, quantity }),
+          body: JSON.stringify({ merchandiseId, productHandle, quantity }),
         }),
       );
       setCartOpen(true);

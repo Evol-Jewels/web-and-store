@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { Reveal } from "@/components/storefront/reveal";
+import { listAllCollections } from "@/server/catalog/catalog.service";
 
 type Tile = {
   name: string;
@@ -55,7 +56,19 @@ const tiles: Tile[] = [
   },
 ];
 
-export function EditorialCollections() {
+export async function EditorialCollections() {
+  const collections = await listAllCollections();
+  const handles = new Set(collections.map((collection) => collection.handle));
+  const visibleTiles = tiles.filter((tile) => handles.has(tile.handle));
+  if (!visibleTiles.length) return null;
+  const fullComposition = visibleTiles.length === tiles.length;
+  const gridClassName = fullComposition
+    ? "lg:h-[48rem] lg:grid-cols-12 lg:grid-rows-2"
+    : visibleTiles.length <= 2
+      ? "lg:grid-cols-2"
+      : visibleTiles.length === 4
+        ? "lg:grid-cols-4"
+        : "lg:grid-cols-3";
   return (
     <section id="collections" className="border-y border-border py-24 sm:py-32">
       <Reveal className="luxury-container text-center">
@@ -69,12 +82,12 @@ export function EditorialCollections() {
         </p>
       </Reveal>
 
-      <div className="mt-14 grid grid-cols-2 gap-px bg-border sm:mt-18 lg:h-[48rem] lg:grid-cols-12 lg:grid-rows-2">
-        {tiles.map((tile) => (
+      <div className={`mt-14 grid grid-cols-2 gap-px bg-border sm:mt-18 ${gridClassName}`}>
+        {visibleTiles.map((tile) => (
           <Link
             key={tile.handle}
             href={`/collections/${tile.handle}`}
-            className={`group relative overflow-hidden bg-product-surface ${tile.className}`}
+            className={`group relative overflow-hidden bg-product-surface ${fullComposition ? tile.className : "aspect-[4/5]"}`}
           >
             <Image
               src={tile.image}

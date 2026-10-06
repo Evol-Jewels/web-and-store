@@ -3,6 +3,7 @@
 import { Heart, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 import { useStorefront } from "@/components/storefront/storefront-provider";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -15,12 +16,38 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { formatMoney } from "@/lib/format";
+import type { ProductCardData } from "@/types/product";
 
 export function WishlistSheet({ children }: { children: React.ReactNode }) {
-  const { wishlist, toggleWishlist } = useStorefront();
+  const { wishlist: savedWishlist, toggleWishlist } = useStorefront();
+  const [open, setOpen] = useState(false);
+  const [checked, setChecked] = useState<{ key: string; products: ProductCardData[]; failed?: boolean } | null>(null);
+  const key = JSON.stringify(savedWishlist.map((product) => product.handle));
+  const wishlist = checked?.key === key ? checked.products : [];
+  const pending = savedWishlist.length > 0 && checked?.key !== key;
+
+  useEffect(() => {
+    if (!open) return;
+    const controller = new AbortController();
+    fetch("/api/products/visible", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ handles: JSON.parse(key) }),
+      signal: controller.signal,
+    })
+      .then(async (response) => {
+        if (!response.ok) throw new Error("Unable to load wishlist");
+        return response.json() as Promise<{ products: ProductCardData[] }>;
+      })
+      .then(({ products }) => {
+        if (!controller.signal.aborted) setChecked({ key, products });
+      })
+      .catch(() => { if (!controller.signal.aborted) setChecked({ key, products: [], failed: true }); });
+    return () => controller.abort();
+  }, [open, key]);
 
   return (
-    <Sheet>
+    <Sheet open={open} onOpenChange={(nextOpen) => { setChecked(null); setOpen(nextOpen); }}>
       <SheetTrigger render={children as React.ReactElement} />
       <SheetContent className="data-[side=right]:w-full data-[side=right]:sm:max-w-[34rem]">
         <SheetHeader className="border-b border-border px-7 py-6 sm:px-10">
@@ -32,7 +59,11 @@ export function WishlistSheet({ children }: { children: React.ReactNode }) {
           </SheetDescription>
         </SheetHeader>
 
-        {wishlist.length ? (
+        {pending || checked?.failed ? (
+          <p role="status" className="px-7 py-10 text-sm text-muted-foreground sm:px-10">
+            {pending ? "Checking saved pieces…" : "Unable to load saved pieces. Please reopen your wishlist to try again."}
+          </p>
+        ) : wishlist.length ? (
           <div className="overflow-y-auto px-7 pb-10 sm:px-10">
             <p className="border-b border-border py-6 text-xs leading-6 text-muted-foreground">
               Sign in to keep your saved pieces available across devices.

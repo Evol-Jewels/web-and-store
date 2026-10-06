@@ -4,16 +4,24 @@ import { ProductGrid } from "@/components/storefront/product-grid";
 import { getCollectionDetails } from "@/server/catalog/catalog.service";
 import type { ProductDetail } from "@/types/product";
 
+async function getRecommendations(product: ProductDetail) {
+  for (const { handle } of product.collections) {
+    const collection = await getCollectionDetails(handle, 5);
+    if (!collection) continue;
+
+    const products = collection.products
+      .filter((item) => item.id !== product.id)
+      .slice(0, 4);
+    if (products.length) return { collection, products };
+  }
+
+  return null;
+}
+
 export async function MoreProducts({ product }: { product: ProductDetail }) {
-  const collectionHandle = product.collections[0]?.handle;
-  if (!collectionHandle) return null;
-
-  const collection = await getCollectionDetails(collectionHandle, 5);
-  const products = collection?.products
-    .filter((item) => item.id !== product.id)
-    .slice(0, 4);
-
-  if (!collection || !products?.length) return null;
+  const recommendation = await getRecommendations(product);
+  if (!recommendation) return null;
+  const { collection, products } = recommendation;
 
   return (
     <section
