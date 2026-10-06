@@ -27,6 +27,8 @@
   --color-product-surface: var(--product-surface);
   --color-cinematic: var(--cinematic);
   --color-cinematic-foreground: var(--cinematic-foreground);
+  --color-whatsapp: var(--whatsapp);
+  --color-whatsapp-foreground: var(--whatsapp-foreground);
   --font-sans: var(--font-manrope);
   --font-heading: var(--font-cormorant);
   --radius-sm: calc(var(--radius) * 0.6);
@@ -61,6 +63,8 @@
   --product-surface: var(--media-canvas);
   --cinematic: oklch(0.125 0.006 70);
   --cinematic-foreground: oklch(0.96 0.006 80);
+  --whatsapp: #25d366;
+  --whatsapp-foreground: #ffffff;
   --metal-white-light: oklch(0.98 0.003 80);
   --metal-white-base: oklch(0.78 0.006 80);
   --metal-white-deep: oklch(0.65 0.008 80);

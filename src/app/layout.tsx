@@ -4,6 +4,7 @@ import localFont from "next/font/local";
 import { StorefrontFooter } from "@/components/storefront/storefront-footer";
 import { StorefrontHeader } from "@/components/storefront/storefront-header";
 import { StorefrontProvider } from "@/components/storefront/storefront-provider";
+import { WhatsAppSupportButton } from "@/components/storefront/whatsapp-support-button";
 import { hasCustomerSession } from "@/lib/shopify/customer-account";
 
 import "./globals.css";
@@ -44,6 +45,7 @@ export default async function RootLayout({
           <StorefrontHeader signedIn={signedIn} />
           {children}
           <StorefrontFooter />
+          <WhatsAppSupportButton />
         </StorefrontProvider>
       </body>
     </html>
