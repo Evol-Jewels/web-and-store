@@ -113,6 +113,7 @@ export default async function CollectionPage({
           featuredCollection={featuredCollection}
           initialProducts={collection.products}
           initialPageInfo={collection.pageInfo}
+          initialTotalProducts={collection.productsCount}
         />
       </section>
     </main>

@@ -42,7 +42,7 @@ export function CatalogFilterVisual({ kind, option, compact }: {
       </span>
     );
   }
-  return <StoneShapeIcon shape="Round" className={compact ? "size-7" : "size-16"} />;
+  return null;
 }
 
 export function CatalogFilterOption({

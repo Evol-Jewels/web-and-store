@@ -102,6 +102,7 @@ export default async function ProductsPage({
           key={after ?? "initial"}
           initialProducts={page.products}
           initialPageInfo={page.pageInfo}
+          initialTotalProducts={page.totalProducts}
           featuredCollection={featuredCollection}
         />
       </section>
