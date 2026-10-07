@@ -11,6 +11,7 @@ import {
   CART_QUERY,
 } from "./queries";
 import { ShopifyStorefrontError, storefrontRequest } from "../storefront/client";
+import { getPublicProduct } from "@/server/catalog/product-visibility";
 
 type MutationPayload = {
   cart: Cart | null;
@@ -43,13 +44,36 @@ function unwrapMutation(payload: MutationPayload) {
   return { cart: payload.cart, warnings: payload.warnings };
 }
 
+async function publicCart(cart: Cart, buyerIp?: string | null): Promise<Cart> {
+  const checked = await Promise.all(cart.lines.nodes.map(async (line) => ({
+    line,
+    product: await getPublicProduct(line.merchandise.product.handle),
+  })));
+  const hiddenLineIds = checked
+    .filter(({ product }) => !product)
+    .map(({ line }) => line.id);
+  if (!hiddenLineIds.length) return cart;
+
+  const data = await storefrontRequest<MutationResult<"cartLinesRemove">>({
+    query: CART_LINES_REMOVE,
+    variables: { cartId: cart.id, lineIds: hiddenLineIds },
+    buyerIp,
+  });
+  return unwrapMutation(data.cartLinesRemove).cart;
+}
+
+async function publicMutation(payload: MutationPayload, buyerIp?: string | null) {
+  const result = unwrapMutation(payload);
+  return { ...result, cart: await publicCart(result.cart, buyerIp) };
+}
+
 export async function getCart(cartId: string, buyerIp?: string | null) {
   const data = await storefrontRequest<{ cart: Cart | null }>({
     query: CART_QUERY,
     variables: { id: cartId },
     buyerIp,
   });
-  return data.cart;
+  return data.cart ? publicCart(data.cart, buyerIp) : null;
 }
 
 export async function createCart(
@@ -66,7 +90,7 @@ export async function createCart(
     },
     buyerIp,
   });
-  return unwrapMutation(data.cartCreate);
+  return publicMutation(data.cartCreate, buyerIp);
 }
 
 export async function addCartLine(
@@ -83,7 +107,7 @@ export async function addCartLine(
     },
     buyerIp,
   });
-  return unwrapMutation(data.cartLinesAdd);
+  return publicMutation(data.cartLinesAdd, buyerIp);
 }
 
 export async function updateCartLine(
@@ -97,7 +121,7 @@ export async function updateCartLine(
     variables: { cartId, lines: [{ id: lineId, quantity }] },
     buyerIp,
   });
-  return unwrapMutation(data.cartLinesUpdate);
+  return publicMutation(data.cartLinesUpdate, buyerIp);
 }
 
 export async function removeCartLine(
@@ -110,7 +134,7 @@ export async function removeCartLine(
     variables: { cartId, lineIds: [lineId] },
     buyerIp,
   });
-  return unwrapMutation(data.cartLinesRemove);
+  return publicMutation(data.cartLinesRemove, buyerIp);
 }
 
 export async function updateCartDiscountCodes(
@@ -125,7 +149,7 @@ export async function updateCartDiscountCodes(
     variables: { cartId, discountCodes },
     buyerIp,
   });
-  return unwrapMutation(data.cartDiscountCodesUpdate);
+  return publicMutation(data.cartDiscountCodesUpdate, buyerIp);
 }
 
 export async function updateCartBuyerIdentity(
@@ -143,5 +167,5 @@ export async function updateCartBuyerIdentity(
     },
     buyerIp,
   });
-  return unwrapMutation(data.cartBuyerIdentityUpdate);
+  return publicMutation(data.cartBuyerIdentityUpdate, buyerIp);
 }

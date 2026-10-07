@@ -1,6 +1,9 @@
 import "server-only";
+import { cache } from "react";
+import { CatalogApiError } from "@/api/catalog.client";
 
 import type { CollectionCardData, CollectionDetail } from "@/types/collection";
+import { productCategories } from "@/lib/catalog";
 
 import {
   findCollectionByHandle,
@@ -12,7 +15,10 @@ import {
 const internalCollectionTitle = "Smart Products Filter Index - Do not delete";
 
 function isPublicCollection(collection: CollectionCardData) {
-  return collection.title.trim() !== internalCollectionTitle;
+  return (
+    collection.handle !== "globofilter-best-selling-products-index" &&
+    collection.title.trim() !== internalCollectionTitle
+  );
 }
 
 export async function listFeaturedProducts() {
@@ -20,7 +26,18 @@ export async function listFeaturedProducts() {
 }
 
 export async function getProductDetails(handle: string) {
-  return findProductByHandle(handle);
+  const [product, collections] = await Promise.all([
+    findProductByHandle(handle),
+    listOptionalCollections(),
+  ]);
+  const publicIds = new Set(collections.map((collection) => collection.id));
+
+  return {
+    ...product,
+    collections: product.collections.filter((collection) =>
+      publicIds.has(collection.id),
+    ),
+  };
 }
 
 export async function listFeaturedCollections(
@@ -34,7 +51,7 @@ export async function listFeaturedCollections(
   }
 }
 
-export async function listAllCollections(): Promise<CollectionCardData[]> {
+async function loadAllCollections(): Promise<CollectionCardData[]> {
   const collections: CollectionCardData[] = [];
   const seenCursors = new Set<string>();
   let after: string | undefined;
@@ -55,20 +72,52 @@ export async function listAllCollections(): Promise<CollectionCardData[]> {
   return collections;
 }
 
+let pendingCollections: Promise<CollectionCardData[]> | undefined;
+
+export const listAllCollections = cache(async (): Promise<CollectionCardData[]> => {
+  const pending = pendingCollections ??= loadAllCollections();
+  try {
+    return await pending;
+  } finally {
+    if (pendingCollections === pending) pendingCollections = undefined;
+  }
+});
+
+export async function listOptionalCollections(): Promise<CollectionCardData[]> {
+  try {
+    return await listAllCollections();
+  } catch {
+    return [];
+  }
+}
+
+export async function listPublicCategories() {
+  const collections = await listOptionalCollections();
+  const handles = new Set(collections.map((collection) => collection.handle));
+  return productCategories.filter((category) => handles.has(category.slug));
+}
+
 export async function getCollectionDetails(
   handle: string,
   first = 24,
   after?: string,
 ): Promise<CollectionDetail | null> {
   try {
-    return await findCollectionByHandle(handle, first, after);
-  } catch {
-    return null;
+    const collections = await listAllCollections();
+    if (!collections.some((collection) => collection.handle === handle)) {
+      return null;
+    }
+
+    const collection = await findCollectionByHandle(handle, first, after);
+    return isPublicCollection(collection) ? collection : null;
+  } catch (error) {
+    if (error instanceof CatalogApiError && error.status === 404) return null;
+    throw error;
   }
 }
 
 export async function getSugarRushFeature() {
-  const collection = await getCollectionDetails("sugar-rush-collection", 2);
+  const collection = await getCollectionDetails("sugar-rush-collection", 2).catch(() => null);
 
   if (!collection || collection.products.length < 2) return undefined;
 

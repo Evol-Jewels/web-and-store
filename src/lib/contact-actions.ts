@@ -1,4 +1,4 @@
-const whatsappNumber = "9100071181";
+const whatsappNumber = "919100071181";
 const videoCallBookingUrl = "https://calendly.com/mayank-evol/30min";
 
 function productUrl(productHandle: string) {
@@ -8,10 +8,16 @@ function productUrl(productHandle: string) {
   return new URL(`/products/${productHandle}`, origin).toString();
 }
 
-export function whatsappConsultationUrl(productTitle: string) {
-  const text = `Hi I want to talk about ${productTitle}`;
-
+function whatsappUrl(text: string) {
   return `https://api.whatsapp.com/send/?phone=${whatsappNumber}&text=${encodeURIComponent(text)}&type=phone_number&app_absent=0`;
+}
+
+export function whatsappSupportUrl() {
+  return whatsappUrl("Hi, I would like some help with Evol jewellery.");
+}
+
+export function whatsappConsultationUrl(productTitle: string) {
+  return whatsappUrl(`Hi I want to talk about ${productTitle}`);
 }
 
 export function videoCallBookingEmbedUrl(productHandle: string) {

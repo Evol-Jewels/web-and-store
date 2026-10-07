@@ -4,9 +4,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { InfiniteProductGrid } from "@/components/storefront/infinite-product-grid";
-import { productCategories } from "@/lib/catalog";
 import { findProducts } from "@/server/catalog/catalog.repository";
-import { getSugarRushFeature } from "@/server/catalog/catalog.service";
+import { getSugarRushFeature, listPublicCategories } from "@/server/catalog/catalog.service";
 
 export const dynamic = "force-dynamic";
 
@@ -33,9 +32,10 @@ export default async function ProductsPage({
   }
 
   const after = typeof afterParam === "string" ? afterParam : undefined;
-  const [page, featuredCollection] = await Promise.all([
+  const [page, featuredCollection, categories] = await Promise.all([
     findProducts(24, after),
     getSugarRushFeature(),
+    listPublicCategories(),
   ]);
 
   return (
@@ -76,7 +76,7 @@ export default async function ProductsPage({
           >
             All jewellery
           </Link>
-          {productCategories.map((category) => (
+          {categories.map((category) => (
             <Link
               key={category.slug}
               href={"/collections/" + category.slug}
@@ -102,6 +102,7 @@ export default async function ProductsPage({
           key={after ?? "initial"}
           initialProducts={page.products}
           initialPageInfo={page.pageInfo}
+          initialTotalProducts={page.totalProducts}
           featuredCollection={featuredCollection}
         />
       </section>

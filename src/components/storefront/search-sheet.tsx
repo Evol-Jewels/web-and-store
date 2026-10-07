@@ -29,31 +29,32 @@ const searchCollections = [
 const linkClass =
   "text-sm text-foreground/80 transition-colors hover:text-foreground";
 
+type SearchSuggestions = { handles: string[]; products: ProductCardData[] };
+
 export function SearchSheet({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
-  const [creations, setCreations] = useState<ProductCardData[]>([]);
-  const [loaded, setLoaded] = useState(false);
+  const [suggestions, setSuggestions] = useState<SearchSuggestions | null>(null);
+  const handles = new Set(suggestions?.handles ?? []);
 
   useEffect(() => {
-    if (!open || loaded) return;
+    if (!open) return;
     let active = true;
-    fetch("/api/products")
+    fetch("/api/search", { cache: "no-store" })
       .then((response) => (response.ok ? response.json() : null))
       .then((data) => {
         if (active && data?.products) {
-          setCreations(data.products.slice(0, 4));
-          setLoaded(true);
+          setSuggestions(data);
         }
       })
       .catch(() => {});
     return () => {
       active = false;
     };
-  }, [open, loaded]);
+  }, [open]);
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
+    <Sheet open={open} onOpenChange={(nextOpen) => { setSuggestions(null); setOpen(nextOpen); }}>
       <SheetTrigger render={children as React.ReactElement} />
       <SheetContent
         side="top"
@@ -92,7 +93,7 @@ export function SearchSheet({ children }: { children: React.ReactNode }) {
           <div>
             <p className="eyebrow">Categories</p>
             <ul className="mt-6 space-y-4">
-              {productCategories.map((category) => (
+              {productCategories.filter((category) => handles.has(category.slug)).map((category) => (
                 <li key={category.slug}>
                   <SheetClose
                     render={
@@ -112,7 +113,7 @@ export function SearchSheet({ children }: { children: React.ReactNode }) {
           <div>
             <p className="eyebrow">Collections</p>
             <ul className="mt-6 space-y-4">
-              {searchCollections.map((collection) => (
+              {searchCollections.filter((collection) => handles.has(collection.handle)).map((collection) => (
                 <li key={collection.handle}>
                   <SheetClose
                     render={
@@ -132,7 +133,7 @@ export function SearchSheet({ children }: { children: React.ReactNode }) {
           <div>
             <p className="eyebrow">Creations</p>
             <div className="mt-6 grid grid-cols-2 gap-x-6 gap-y-8 sm:grid-cols-4">
-              {creations.map((product) => (
+              {(suggestions?.products ?? []).map((product) => (
                 <SheetClose
                   key={product.id}
                   render={

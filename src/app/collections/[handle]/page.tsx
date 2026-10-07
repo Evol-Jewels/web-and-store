@@ -4,8 +4,7 @@ import { notFound } from "next/navigation";
 
 import { CollectionHero } from "@/components/storefront/collection-hero";
 import { InfiniteProductGrid } from "@/components/storefront/infinite-product-grid";
-import { productCategories } from "@/lib/catalog";
-import { getCollectionDetails, getSugarRushFeature } from "@/server/catalog/catalog.service";
+import { getCollectionDetails, getSugarRushFeature, listPublicCategories } from "@/server/catalog/catalog.service";
 
 export const dynamic = "force-dynamic";
 
@@ -38,9 +37,10 @@ export default async function CollectionPage({
     searchParams,
   ]);
   const after = typeof afterParam === "string" ? afterParam : undefined;
-  const [collection, featuredCollection] = await Promise.all([
+  const [collection, featuredCollection, categories] = await Promise.all([
     getCollectionDetails(handle, 24, after),
     getSugarRushFeature(),
+    listPublicCategories(),
   ]);
 
   if (!collection) notFound();
@@ -61,7 +61,7 @@ export default async function CollectionPage({
           >
             All jewellery
           </Link>
-          {productCategories.map((category) => {
+          {categories.map((category) => {
             const selected = category.slug === collection.handle;
 
             return (
@@ -113,6 +113,7 @@ export default async function CollectionPage({
           featuredCollection={featuredCollection}
           initialProducts={collection.products}
           initialPageInfo={collection.pageInfo}
+          initialTotalProducts={collection.productsCount}
         />
       </section>
     </main>

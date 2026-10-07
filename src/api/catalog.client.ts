@@ -42,16 +42,26 @@ export class CatalogApiError extends Error {
 }
 
 async function requestCatalog<T>(path: string): Promise<T> {
-  const response = await fetch(`${backendApiUrl}${path}`, {
-    cache: "no-store",
-    headers: { Accept: "application/json" },
-  });
+  let response = await fetchCatalog(path);
+
+  if ([429, 502, 503, 504].includes(response.status)) {
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    response = await fetchCatalog(path, new AbortController().signal);
+  }
 
   if (!response.ok) {
-    throw new CatalogApiError("Unable to load the catalog", response.status);
+    throw new CatalogApiError(`Unable to load the catalog (${path.split("?")[0]})`, response.status);
   }
 
   return response.json() as Promise<T>;
+}
+
+function fetchCatalog(path: string, signal?: AbortSignal) {
+  return fetch(`${backendApiUrl}${path}`, {
+    cache: "no-store",
+    headers: { Accept: "application/json" },
+    signal,
+  });
 }
 
 export async function getProducts(

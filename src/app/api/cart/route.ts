@@ -7,11 +7,13 @@ import {
   addCartLine,
   createCart,
   getCart,
+  normalizeVariantId,
   removeCartLine,
   updateCartDiscountCodes,
   updateCartLine,
 } from "@/lib/shopify/cart/server";
 import { ShopifyStorefrontError } from "@/lib/shopify/storefront/client";
+import { getPublicProduct } from "@/server/catalog/product-visibility";
 
 function buyerIp(request: Request) {
   return (
@@ -53,14 +55,21 @@ export async function POST(request: Request) {
   try {
     const body = (await request.json()) as {
       merchandiseId?: unknown;
+      productHandle?: unknown;
       quantity?: unknown;
     };
 
-    if (typeof body.merchandiseId !== "string" || !validQuantity(body.quantity)) {
+    if (typeof body.merchandiseId !== "string" || typeof body.productHandle !== "string" || !validQuantity(body.quantity)) {
       return NextResponse.json(
         { error: "Choose an available product option before adding it to your bag." },
         { status: 400 },
       );
+    }
+
+    const product = await getPublicProduct(body.productHandle);
+    const merchandiseId = normalizeVariantId(body.merchandiseId);
+    if (!product || !product.variants.some((variant) => normalizeVariantId(variant.id) === merchandiseId)) {
+      throw new ShopifyStorefrontError("This piece is no longer available.");
     }
 
     const cookieStore = await cookies();

@@ -1,17 +1,18 @@
 import type { ProductCardData } from "@/types/product";
-import { findProducts } from "@/server/catalog/catalog.repository";
-import { getCollectionDetails } from "@/server/catalog/catalog.service";
+import type { CollectionCardData } from "@/types/collection";
+import { findProducts, findCollectionByHandle } from "@/server/catalog/catalog.repository";
+import { listAllCollections } from "@/server/catalog/catalog.service";
 
 type CatalogSnapshot = { products: ProductCardData[]; readyProductIds: string[] };
 
-async function loadProducts(collection?: string) {
+async function loadProducts(collection?: CollectionCardData) {
   const products: ProductCardData[] = [];
   const seenCursors = new Set<string>();
   let after: string | undefined;
 
   do {
     const page = collection
-      ? await getCollectionDetails(collection, 48, after)
+      ? await findCollectionByHandle(collection.handle, 48, after)
       : await findProducts(48, after);
     if (!page) throw new Error("Collection not found");
     products.push(...page.products);
@@ -29,9 +30,15 @@ async function loadProducts(collection?: string) {
 export async function GET(request: Request) {
   const collection = new URL(request.url).searchParams.get("collection") ?? undefined;
   try {
+    const collections = await listAllCollections();
+    const selected = collections.find((item) => item.handle === collection);
+    if (collection && !selected) {
+      return Response.json({ message: "Collection not found" }, { status: 404 });
+    }
+    const readyToShip = collections.find((item) => item.handle === "ready-to-ship");
     const [products, readyProducts] = await Promise.all([
-      loadProducts(collection),
-      loadProducts("ready-to-ship"),
+      loadProducts(selected),
+      readyToShip ? loadProducts(readyToShip) : Promise.resolve([]),
     ]);
     const snapshot: CatalogSnapshot = {
       products,
