@@ -1,3 +1,4 @@
+import { LoadingStatus } from "@/components/storefront/loading-status";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -7,7 +8,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { formatMoney } from "@/lib/format";
+import { StorefrontMoney, CurrencyNotice } from "@/components/storefront/storefront-money";
 import {
   availableInventoryForVariant,
   variantMatchesSelections,
@@ -73,9 +74,12 @@ export function ProductOptions({
   return (
     <div className={cn("space-y-6", className)}>
       {selectedVariant ? (
-        <p className="text-lg font-medium tracking-[-0.01em]">
-          {formatMoney(selectedVariant.price)}
-        </p>
+        <div>
+          <p className="text-lg font-medium tracking-[-0.01em]">
+            <StorefrontMoney money={selectedVariant.price} />
+          </p>
+          <CurrencyNotice />
+        </div>
       ) : null}
 
       {visibleOptions.map((option) => {
@@ -221,9 +225,9 @@ export function ProductOptions({
             onClick={() => selectedVariant && productCard && addToCart(selectedVariant.id, productCard.handle)}
             className="h-13 flex-1 rounded-none gap-2.5"
           >
-            <ShoppingBag className="size-3.5 shrink-0" strokeWidth={1.25} />
+            {!cartPending ? <ShoppingBag className="size-3.5 shrink-0" strokeWidth={1.25} /> : null}
             {cartPending
-              ? "Adding to bag"
+              ? <LoadingStatus>Adding to bag</LoadingStatus>
               : available
                 ? "Add to bag"
                 : "Currently unavailable"}

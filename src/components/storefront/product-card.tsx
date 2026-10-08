@@ -6,7 +6,7 @@ import Link from "next/link";
 
 import { useStorefront } from "@/components/storefront/storefront-provider";
 import { Button } from "@/components/ui/button";
-import { formatMoney } from "@/lib/format";
+import { StorefrontMoney } from "@/components/storefront/storefront-money";
 import type { ProductCardData } from "@/types/product";
 
 function formatProductTitle(title: string) {
@@ -82,7 +82,7 @@ export function ProductCard({
           {formatProductTitle(product.title)}
         </h2>
         <p className="mt-1.5 text-xs text-muted-foreground sm:text-sm">
-          From {formatMoney(product.priceRange.min)}
+          From <StorefrontMoney money={product.priceRange.min} />
         </p>
       </Link>
     </article>

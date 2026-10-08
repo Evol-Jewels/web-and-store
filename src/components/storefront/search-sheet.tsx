@@ -15,8 +15,9 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { productCategories } from "@/lib/catalog";
-import { formatMoney } from "@/lib/format";
+import { StorefrontMoney } from "@/components/storefront/storefront-money";
 import type { ProductCardData } from "@/types/product";
+import { LoadingStatus } from "./loading-status";
 
 const searchCollections = [
   { handle: "solitaire", label: "Solitaire" },
@@ -34,20 +35,26 @@ type SearchSuggestions = { handles: string[]; products: ProductCardData[] };
 export function SearchSheet({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
-  const [suggestions, setSuggestions] = useState<SearchSuggestions | null>(null);
-  const handles = new Set(suggestions?.handles ?? []);
+  const [suggestions, setSuggestions] = useState<SearchSuggestions | "error" | null>(null);
+  const data = typeof suggestions === "object" ? suggestions : null;
+  const handles = new Set(data?.handles ?? []);
 
   useEffect(() => {
     if (!open) return;
     let active = true;
     fetch("/api/search", { cache: "no-store" })
-      .then((response) => (response.ok ? response.json() : null))
+      .then((response) => {
+        if (!response.ok) throw new Error("Unable to load search suggestions");
+        return response.json();
+      })
       .then((data) => {
         if (active && data?.products) {
           setSuggestions(data);
+        } else if (active) {
+          setSuggestions("error");
         }
       })
-      .catch(() => {});
+      .catch(() => { if (active) setSuggestions("error"); });
     return () => {
       active = false;
     };
@@ -89,7 +96,11 @@ export function SearchSheet({ children }: { children: React.ReactNode }) {
           </SheetClose>
         </div>
 
-        <div className="luxury-container grid gap-x-12 gap-y-12 py-12 lg:grid-cols-[10rem_10rem_1fr]">
+        {suggestions === null ? (
+          <div className="luxury-container py-12 text-center text-xs text-muted-foreground"><LoadingStatus>Loading search suggestions</LoadingStatus></div>
+        ) : suggestions === "error" ? (
+          <p role="alert" className="luxury-container py-12 text-center text-sm text-muted-foreground">Unable to load suggestions. Please reopen search to try again.</p>
+        ) : <div className="luxury-container grid gap-x-12 gap-y-12 py-12 lg:grid-cols-[10rem_10rem_1fr]">
           <div>
             <p className="eyebrow">Categories</p>
             <ul className="mt-6 space-y-4">
@@ -133,7 +144,7 @@ export function SearchSheet({ children }: { children: React.ReactNode }) {
           <div>
             <p className="eyebrow">Creations</p>
             <div className="mt-6 grid grid-cols-2 gap-x-6 gap-y-8 sm:grid-cols-4">
-              {(suggestions?.products ?? []).map((product) => (
+              {(data?.products ?? []).map((product) => (
                 <SheetClose
                   key={product.id}
                   render={
@@ -155,13 +166,13 @@ export function SearchSheet({ children }: { children: React.ReactNode }) {
                     {product.title}
                   </p>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    From {formatMoney(product.priceRange.min)}
+                    From <StorefrontMoney money={product.priceRange.min} />
                   </p>
                 </SheetClose>
               ))}
             </div>
           </div>
-        </div>
+        </div>}
       </SheetContent>
     </Sheet>
   );

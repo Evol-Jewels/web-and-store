@@ -1,5 +1,7 @@
 "use client";
 
+import { LoadingStatus } from "@/components/storefront/loading-status";
+
 import Image from "next/image";
 import { useActionState } from "react";
 
@@ -7,7 +9,7 @@ import { submitTryAtHomeRequest } from "@/app/try-at-home/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { formatMoney } from "@/lib/format";
+import { StorefrontMoney } from "@/components/storefront/storefront-money";
 import { indiaStates } from "@/lib/india-states";
 import { MAX_BAG_ITEMS } from "@/lib/shopify/cart/limits";
 import type { Cart } from "@/lib/shopify/cart/types";
@@ -65,7 +67,7 @@ function SelectionSummary({ cart }: { cart: Cart }) {
                 {options.length ? <p className="mt-1 text-xs text-muted-foreground">{options.map(({ value }) => value).join(" · ")}</p> : null}
                 <div className="mt-3 flex justify-between gap-3 text-xs">
                   <span>Quantity {line.quantity}</span>
-                  <span>{formatMoney(line.cost.totalAmount)}</span>
+                  <span><StorefrontMoney money={line.cost.totalAmount} /></span>
                 </div>
               </div>
             </li>
@@ -74,7 +76,7 @@ function SelectionSummary({ cart }: { cart: Cart }) {
       </ul>
       <div className="flex items-center justify-between border-t border-border pt-5 text-sm">
         <span>Selection value</span>
-        <span className="font-medium">{formatMoney(cart.cost.subtotalAmount)}</span>
+        <span className="font-medium"><StorefrontMoney money={cart.cost.subtotalAmount} /></span>
       </div>
       <p className="mt-3 text-xs leading-5 text-muted-foreground">
         Shown for reference. No payment is due when you submit this request.
@@ -126,7 +128,7 @@ export function RequestForm({ cart }: { cart: Cart }) {
           </label>
           {state.error ? <p role="alert" className="mt-5 text-sm text-destructive">{state.error}</p> : null}
           <Button type="submit" variant="luxury" size="lg" disabled={pending} className="mt-7 h-13 w-full rounded-none px-8 text-xs sm:w-auto">
-            {pending ? "Sending request" : "Send Try at Home request"}
+            {pending ? <LoadingStatus>Sending request</LoadingStatus> : "Send Try at Home request"}
           </Button>
         </div>
       </form>

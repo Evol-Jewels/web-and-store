@@ -1,18 +1,17 @@
+import { LoadingStatus } from "@/components/storefront/loading-status";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function CollectionLoading() {
   return (
     <main aria-busy="true">
-      <p role="status" className="sr-only">
-        Loading collection
-      </p>
-      <section
+            <section
         data-hero
         className="relative isolate min-h-[31rem] overflow-hidden bg-cinematic sm:min-h-[38rem]"
       >
         <div className="absolute inset-0 bg-product-surface" aria-hidden="true" />
         <div className="absolute inset-0 bg-cinematic/70" />
         <div className="luxury-container relative flex min-h-[31rem] flex-col items-center justify-center px-5 pb-16 pt-28 sm:min-h-[38rem]">
+          <LoadingStatus className="mb-6 text-xs text-cinematic-foreground">Loading collection</LoadingStatus>
           <Skeleton className="h-2 w-28 bg-cinematic-foreground/30 motion-reduce:animate-none" />
           <Skeleton className="mt-7 h-12 w-[min(75vw,30rem)] bg-cinematic-foreground/30 sm:h-16 sm:w-[min(70vw,48rem)] motion-reduce:animate-none" />
           <Skeleton className="mt-3 h-12 w-[min(60vw,22rem)] bg-cinematic-foreground/30 sm:hidden motion-reduce:animate-none" />
