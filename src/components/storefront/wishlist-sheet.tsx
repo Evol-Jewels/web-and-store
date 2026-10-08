@@ -1,5 +1,7 @@
 "use client";
 
+import { LoadingStatus } from "@/components/storefront/loading-status";
+
 import { Heart, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -15,7 +17,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { formatMoney } from "@/lib/format";
+import { StorefrontMoney } from "@/components/storefront/storefront-money";
 import type { ProductCardData } from "@/types/product";
 
 export function WishlistSheet({ children }: { children: React.ReactNode }) {
@@ -61,7 +63,7 @@ export function WishlistSheet({ children }: { children: React.ReactNode }) {
 
         {pending || checked?.failed ? (
           <p role="status" className="px-7 py-10 text-sm text-muted-foreground sm:px-10">
-            {pending ? "Checking saved pieces…" : "Unable to load saved pieces. Please reopen your wishlist to try again."}
+            {pending ? <LoadingStatus>Checking saved pieces…</LoadingStatus> : "Unable to load saved pieces. Please reopen your wishlist to try again."}
           </p>
         ) : wishlist.length ? (
           <div className="overflow-y-auto px-7 pb-10 sm:px-10">
@@ -96,7 +98,7 @@ export function WishlistSheet({ children }: { children: React.ReactNode }) {
                       {product.title}
                     </Link>
                     <p className="mt-2 text-xs">
-                      From {formatMoney(product.priceRange.min)}
+                      From <StorefrontMoney money={product.priceRange.min} />
                     </p>
                   </div>
                   <Button

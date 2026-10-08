@@ -1,5 +1,7 @@
 "use client";
 
+import { LoadingStatus } from "@/components/storefront/loading-status";
+
 import { Plus, SlidersHorizontal } from "lucide-react";
 import { useState } from "react";
 
@@ -32,13 +34,13 @@ export function CatalogFilterBar({
   const selectedCount = activeFilterCount(filters);
 
   return (
-    <div className="mb-10 border-y border-border sm:mb-14">
+    <div className="mb-10 sm:mb-14">
       <div className="flex min-h-16 items-center justify-between gap-4 py-3 lg:hidden">
         <Button variant="outline" className="min-h-11 rounded-none px-4 text-[0.66rem] uppercase tracking-[0.16em]" onClick={() => setOpen(true)}>
           <SlidersHorizontal className="size-4" strokeWidth={1.5} />
           Filters{selectedCount ? ` (${selectedCount})` : ""}
         </Button>
-        <span className="text-xs text-muted-foreground">{resultsLoading ? "Updating…" : `${resultCount.toLocaleString("en-IN")} pieces`}</span>
+        <span className="text-xs text-muted-foreground">{resultsLoading ? <LoadingStatus>Updating…</LoadingStatus> : `${resultCount.toLocaleString("en-IN")} pieces`}</span>
       </div>
 
       <div className="hidden items-stretch gap-5 py-5 lg:flex">
@@ -76,7 +78,7 @@ export function CatalogFilterBar({
           )))}
           {filters.readyToShip ? <button type="button" aria-label="Remove Ready to ship filter" onClick={onReadyToggle} className="inline-flex min-h-10 items-center gap-2 border border-border px-2.5 text-xs hover:bg-muted"><CatalogFilterVisual kind="availability" option={{ value: "Ready to ship" }} compact />Ready to ship <span aria-hidden="true">×</span></button> : null}
           <button type="button" onClick={onClear} className="min-h-9 px-2 text-xs underline underline-offset-4">Clear all</button>
-          <span className="ml-auto text-xs text-muted-foreground">{resultsLoading ? "Updating pieces…" : `${resultCount.toLocaleString("en-IN")} pieces`}</span>
+          <span className="ml-auto text-xs text-muted-foreground">{resultsLoading ? <LoadingStatus>Updating pieces…</LoadingStatus> : `${resultCount.toLocaleString("en-IN")} pieces`}</span>
         </div>
       ) : null}
 
@@ -105,7 +107,7 @@ export function CatalogFilterBar({
           </div>
           <div className="grid grid-cols-2 gap-2 border-t border-border bg-background px-6 py-5 sm:px-8">
             <Button variant="outline" className="h-12 rounded-none text-[0.67rem] uppercase tracking-[0.16em]" onClick={onClear} disabled={!selectedCount}>Clear filters</Button>
-            <Button variant="luxury" className="h-12 rounded-none text-[0.67rem]" onClick={() => setOpen(false)} disabled={resultsLoading}>{resultsLoading ? "Updating pieces" : `View ${resultCount.toLocaleString("en-IN")} pieces`}</Button>
+            <Button variant="luxury" className="h-12 rounded-none text-[0.67rem]" onClick={() => setOpen(false)} disabled={resultsLoading}>{resultsLoading ? <LoadingStatus>Updating pieces</LoadingStatus> : `View ${resultCount.toLocaleString("en-IN")} pieces`}</Button>
           </div>
         </SheetContent>
       </Sheet>

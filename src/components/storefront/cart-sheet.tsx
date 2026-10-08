@@ -1,6 +1,8 @@
 "use client";
 
-import { LoaderCircle, Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
+import { LoadingStatus } from "@/components/storefront/loading-status";
+
+import { Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -13,7 +15,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { formatMoney } from "@/lib/format";
+import { StorefrontMoney, CurrencyNotice } from "@/components/storefront/storefront-money";
 import { MAX_BAG_ITEMS } from "@/lib/shopify/cart/limits";
 import { cn } from "@/lib/utils";
 
@@ -54,8 +56,7 @@ export function CartSheet({ children }: { children: React.ReactNode }) {
 
         {cartPending && !cart ? (
           <div className="grid flex-1 place-items-center" role="status">
-            <LoaderCircle className="size-5 animate-spin" strokeWidth={1.25} />
-            <span className="sr-only">Loading shopping bag</span>
+            <LoadingStatus className="text-xs text-muted-foreground">Loading shopping bag</LoadingStatus>
           </div>
         ) : !populatedCart ? (
           <div className="grid flex-1 place-items-center px-7 py-16 text-center sm:px-10">
@@ -172,7 +173,7 @@ export function CartSheet({ children }: { children: React.ReactNode }) {
                             </Button>
                           </div>
                           <p className="text-sm font-medium">
-                            {formatMoney(line.cost.totalAmount)}
+                            <StorefrontMoney money={line.cost.totalAmount} />
                           </p>
                         </div>
                       </div>
@@ -183,6 +184,7 @@ export function CartSheet({ children }: { children: React.ReactNode }) {
             </div>
 
             <div className="border-t border-border px-7 py-6 sm:px-10">
+              {cartPending ? <LoadingStatus className="text-xs text-muted-foreground">Updating shopping bag</LoadingStatus> : null}
               {cartMessage ? (
                 <p role="status" className="mt-3 text-xs leading-5 text-destructive">
                   {cartMessage}
@@ -199,13 +201,15 @@ export function CartSheet({ children }: { children: React.ReactNode }) {
                   </p>
                 </div>
                 <p className="text-base font-medium">
-                  {formatMoney(populatedCart.cost.subtotalAmount)}
+                  <StorefrontMoney money={populatedCart.cost.subtotalAmount} />
                 </p>
               </div>
 
               <p className="mt-4 text-xs leading-5 text-muted-foreground">
                 Choose up to {MAX_BAG_ITEMS} pieces for your bag. Purchase them or request to try them at home.
               </p>
+
+              <CurrencyNotice />
 
               <Link
                 href="/api/cart/checkout"

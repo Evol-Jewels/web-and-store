@@ -1,8 +1,10 @@
+import { LoadingStatus } from "@/components/storefront/loading-status";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function AccountLoading() {
   return (
     <main className="luxury-container pb-20 pt-36 sm:pb-28 sm:pt-44" aria-busy="true" aria-label="Loading account">
+      <LoadingStatus className="mb-6 text-xs text-muted-foreground">Loading account</LoadingStatus>
       <Skeleton className="h-3 w-28 rounded-none" />
       <Skeleton className="mt-5 h-14 w-full max-w-md rounded-none" />
       <Skeleton className="mt-6 h-5 w-full max-w-xl rounded-none" />

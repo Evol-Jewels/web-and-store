@@ -8,6 +8,10 @@ import { WhatsAppSupportButton } from "@/components/storefront/whatsapp-support-
 import { hasCustomerSession } from "@/lib/shopify/customer-account";
 
 import "./globals.css";
+import { CurrencyProvider } from "@/components/storefront/currency-provider";
+import { CurrencyPicker } from "@/components/storefront/currency-picker";
+import { FloatingStorefrontControls } from "@/components/storefront/floating-storefront-controls";
+import { getCurrencySettings } from "@/server/currency";
 
 const manrope = localFont({
   src: "./fonts/manrope-variable.ttf",
@@ -33,7 +37,7 @@ export const metadata: Metadata = {
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const signedIn = await hasCustomerSession();
+  const [signedIn, currencySettings] = await Promise.all([hasCustomerSession(), getCurrencySettings()]);
 
   return (
     <html
@@ -41,12 +45,17 @@ export default async function RootLayout({
       className={`${manrope.variable} ${cormorant.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
-        <StorefrontProvider>
-          <StorefrontHeader signedIn={signedIn} />
-          {children}
-          <StorefrontFooter />
-          <WhatsAppSupportButton />
-        </StorefrontProvider>
+        <CurrencyProvider {...currencySettings}>
+          <StorefrontProvider>
+            <StorefrontHeader signedIn={signedIn} />
+            {children}
+            <StorefrontFooter />
+            <FloatingStorefrontControls>
+              <WhatsAppSupportButton />
+              <CurrencyPicker />
+            </FloatingStorefrontControls>
+          </StorefrontProvider>
+        </CurrencyProvider>
       </body>
     </html>
   );

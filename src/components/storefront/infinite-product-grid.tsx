@@ -1,5 +1,7 @@
 "use client";
 
+import { LoadingStatus } from "@/components/storefront/loading-status";
+
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { activeFilterCount, predefinedFacets, emptyFilters, type CatalogFilters, type FilterKey } from "@/lib/catalog-filters";
@@ -214,20 +216,20 @@ export function InfiniteProductGrid({
         onClear={clear}
       />
       {hasFilters && filterState === "loading" ? (
-        <div className="min-h-56 border-y border-border py-20 text-center text-xs uppercase tracking-[0.18em] text-muted-foreground" aria-live="polite">Finding matching pieces…</div>
+        <div className="min-h-56 py-20 text-center text-xs uppercase tracking-[0.18em] text-muted-foreground" aria-live="polite"><LoadingStatus>Finding matching pieces…</LoadingStatus></div>
       ) : hasFilters && filterState === "error" ? (
-        <div className="min-h-56 border-y border-border py-20 text-center text-sm text-muted-foreground" role="alert">Unable to filter pieces. <button type="button" onClick={() => { setFilterState("loading"); setFilterRetryKey((current) => current + 1); }} className="underline underline-offset-4">Try again</button></div>
+        <div className="min-h-56 py-20 text-center text-sm text-muted-foreground" role="alert">Unable to filter pieces. <button type="button" onClick={() => { setFilterState("loading"); setFilterRetryKey((current) => current + 1); }} className="underline underline-offset-4">Try again</button></div>
       ) : products.length ? productListing : (
-        <div className="border-y border-border py-20 text-center">
+        <div className="py-20 text-center">
           <p className="font-heading text-3xl">No pieces found</p>
           <p className="mt-2 text-sm text-muted-foreground">Try a different combination of filters.</p>
           <button type="button" onClick={clear} className="mt-6 text-xs uppercase tracking-[0.16em] underline underline-offset-4">Clear filters</button>
         </div>
       )}
       <div ref={sentinelRef} className="min-h-10 pt-10 text-center" aria-live="polite">
-        {!hasFilters && paging ? <p className="text-[0.62rem] uppercase tracking-[0.2em] text-muted-foreground">Loading more pieces</p> : null}
+        {!hasFilters && paging ? <p className="text-[0.62rem] uppercase tracking-[0.2em] text-muted-foreground"><LoadingStatus>Loading more pieces</LoadingStatus></p> : null}
         {!hasFilters && pagingError ? <button type="button" onClick={() => setPagingError(false)} className="text-xs underline underline-offset-4">Try loading more</button> : null}
-        {hasFilters && filterPaging ? <p className="text-[0.62rem] uppercase tracking-[0.2em] text-muted-foreground">Loading more pieces</p> : null}
+        {hasFilters && filterPaging ? <p className="text-[0.62rem] uppercase tracking-[0.2em] text-muted-foreground"><LoadingStatus>Loading more pieces</LoadingStatus></p> : null}
         {hasFilters && filterPagingError ? <button type="button" onClick={() => setFilterPagingError(false)} className="text-xs underline underline-offset-4">Try loading more</button> : null}
       </div>
     </div>

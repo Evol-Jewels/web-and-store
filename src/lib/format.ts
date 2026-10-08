@@ -1,10 +1,12 @@
 import type { Money } from "@/types/product";
+import { currencies } from "@/lib/currency";
 
 export function formatMoney(money: Money) {
-  return new Intl.NumberFormat("en-IN", {
+  const locale = currencies.find(({ code }) => code === money.currencyCode)?.locale ?? "en-IN";
+  return new Intl.NumberFormat(locale, {
     style: "currency",
     currency: money.currencyCode,
-    maximumFractionDigits: 0,
+    maximumFractionDigits: money.currencyCode === "INR" ? 0 : 2,
   }).format(Number(money.amount));
 }
 

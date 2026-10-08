@@ -2,7 +2,6 @@
 
 import {
   Heart,
-  IndianRupee,
   Menu,
   Phone,
   Search,
@@ -149,10 +148,6 @@ export function StorefrontHeader({ signedIn }: { signedIn: boolean }) {
         </Link>
 
         <div className="flex items-center justify-self-end">
-          <span className="mr-1 hidden items-center gap-1 text-[0.62rem] uppercase tracking-[0.14em] opacity-70 lg:flex">
-            IN
-            <IndianRupee className="size-3" strokeWidth={1.25} />
-          </span>
           <ContactSheet>
             <Button
               variant="ghost"
